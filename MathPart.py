@@ -1,6 +1,8 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
 
+from datetime import datetime
+
 def stockPriceCalculator(name, initAmount, startDate, endDate):
     numOfStocks = 0
     initInvestment = 0.00
@@ -45,10 +47,16 @@ def stockPlotter(name2, startDate2, endDate2):
     priceList = []
     stockDataTable = stockName.history(start = startDate2, end = endDate2)
     for row in stockDataTable.itertuples():
-        dateList.append(row.Index)
+        dateString = row.Index.strftime("%Y-%m-%d")
+        dateList.append(dateString)
         priceList.append(row.Close)
+
+    priceList.reverse()
+
     print (dateList)
     print (priceList)
+    plt.plot(dateList, priceList)
+    plt.show()
 
 stockPriceCalculator("TSLA", 1000, "2020-02-03", "2020-02-07")
 stockPlotter("TSLA", "2020-02-03", "2020-02-07")
