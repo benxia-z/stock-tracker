@@ -45,18 +45,25 @@ def stockPlotter(name2, startDate2, endDate2):
     stockName = yf.Ticker(name2)
     dateList = []
     priceList = []
+    xTicks = []
     stockDataTable = stockName.history(start = startDate2, end = endDate2)
+
     for row in stockDataTable.itertuples():
         dateString = row.Index.strftime("%Y-%m-%d")
         dateList.append(dateString)
         priceList.append(row.Close)
 
-    priceList.reverse()
-
     print (dateList)
     print (priceList)
+    #if(dateList.len() < 15):
+    #    xTicks = dateList[]
+    #elif(dateList.len() < 45):
+    #    for 
     plt.plot(dateList, priceList)
+    plt.title(name2 + " Performance", fontsize = 20)
+    plt.xlabel('Date', fontsize = 14)
+    plt.ylabel('Price ($)', fontsize = 14)
     plt.show()
 
-stockPriceCalculator("TSLA", 1000, "2020-02-03", "2020-02-07")
-stockPlotter("TSLA", "2020-02-03", "2020-02-07")
+stockPriceCalculator("005490.KS", 1000, "2020-01-21", "2020-02-07")
+stockPlotter("005490.KS", "2020-01-21", "2020-02-07")
