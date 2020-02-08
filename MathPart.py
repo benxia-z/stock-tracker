@@ -1,4 +1,5 @@
 import yfinance as yf
+import matplotlib.pyplot as plt
 
 def stockPriceCalculator(name, initAmount, startDate, endDate):
     numOfStocks = 0
@@ -7,6 +8,7 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
     endStockPrice = 0.00
     endValueOfInvestment = 0.00
     investmentGain = 0.00
+    percentageGain = 0.00
 
 
     initStockPrice = stockPriceLocator(name, startDate)
@@ -24,15 +26,29 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
     investmentGain = round((endValueOfInvestment - initInvestment), 2)
     print("Your investment gained $" + str(investmentGain))
 
+    percentageGain = round(((endValueOfInvestment - initInvestment)/initInvestment) * 100, 2)
+    print("That's a " + str(percentageGain) + "% gain!")
+
+
 def stockPriceLocator(name1, date):
     stockName = yf.Ticker(name1)
     stockPrice = 0.00
 
     stockDataTable = stockName.history(start = date, end = date)
+    print (stockDataTable)
     stockPrice = float(stockDataTable.loc[date, "Close"])
     return stockPrice
 
-try:
-    stockPriceCalculator("FB", 1000, "2016-05-30", "2020-02-07")
-except:
-    pass
+def stockPlotter(name2, startDate2, endDate2):
+    stockName = yf.Ticker(name2)
+    dateList = []
+    priceList = []
+    stockDataTable = stockName.history(start = startDate2, end = endDate2)
+    for row in stockDataTable.itertuples():
+        dateList.append(row.Index)
+        priceList.append(row.Close)
+    print (dateList)
+    print (priceList)
+
+stockPriceCalculator("TSLA", 1000, "2020-02-03", "2020-02-07")
+stockPlotter("TSLA", "2020-02-03", "2020-02-07")
