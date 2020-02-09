@@ -18,7 +18,7 @@ def index():
         start = request.form.get('start')
         end = request.form.get('end')
         submitted = request.form.get('submitted')
-        if not isStockReal(stock):
+        if not mp.isStockReal(stock):
             return render_template('index.html', stock=stock, plot_url=plot_url, submitted=submitted, answers=answers)
         if submitted == 'Try Again?':
             submitted = False
