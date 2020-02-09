@@ -31,7 +31,12 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
     percentageGain = round(((endValueOfInvestment - initInvestment)/initInvestment) * 100, 2)
     percentageGaininfo = "That's a " + str(percentageGain) + "% gain!"
 
-    returnInfo = startInfo + '\n' + buyInfo + '\n' + endStockInfo + '\n' + endInvestmentInfo + '\n' + investmentGainInfo + '\n' + percentageGaininfo + '\n'
+    returnInfo = {'startInfo': startInfo,
+                  'buyInfo': buyInfo,
+                  'endStockInfo': endStockInfo,
+                  'endInvestmentInfo': endInvestmentInfo,
+                  'investmentGainInfo': investmentGainInfo,
+                  'percentageGaininfo': percentageGaininfo} 
 
     return (returnInfo)
 
@@ -65,6 +70,14 @@ def stockPlotter(name2, startDate2, endDate2):
         yTicks = priceList
     elif(dateListSize < 45):
         for i in range(0, dateListSize, 3):
+            xTicks.append(dateList[i])
+            yTicks.append(priceList[i])
+    elif(dateListSize < 90):
+        for i in range(0, dateListSize, 6):
+            xTicks.append(dateList[i])
+            yTicks.append(priceList[i])
+    elif(dateListSize < 90):
+        for i in range(0, dateListSize, 6):
             xTicks.append(dateList[i])
             yTicks.append(priceList[i])
 
