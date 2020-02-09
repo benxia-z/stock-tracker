@@ -20,6 +20,11 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
 
     numOfStocks = int(initAmount/initStockPrice)
     startInfo = "The value of the stock on " + startDate + " was $" + str(initStockPrice)
+
+    while (numOfStocks == 0):
+        initAmount = float(input("You were not able to buy any stocks with your initial investment. Please enter a new amount: "))
+        numOfStocks = int(initAmount/initStockPrice)
+
     initInvestment = numOfStocks * initStockPrice
     buyInfo = "You were able to buy " + str(numOfStocks) + " stocks at $" + str(initInvestment)
 
@@ -47,7 +52,6 @@ def stockPriceLocator(name1, date):
     stockPrice = 0.00
 
     stockDataTable = stockName.history(start = date, end = date)
-    print (stockDataTable)
     stockPrice = float(stockDataTable.loc[date, "Close"])
     return stockPrice
 
@@ -110,3 +114,10 @@ def stockPlotter(name2, startDate2, endDate2):
 
 
 print(stockPriceCalculator("TSLA", 1000, "2020-01-02", "2020-02-07"))
+stock = input("Enter stock: ")
+investAmount = float(input("Enter initial investment amount: "))
+investmentDate = input("Enter the date (YYYY-MM-DD) you wish you invest on: ")
+compareDate = input("Enter another date (YYYY-MM-DD) to see the performance of the stock over time: ")
+
+print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
+stockPlotter(stock, investmentDate, compareDate)
