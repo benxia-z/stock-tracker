@@ -31,7 +31,7 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
 
     endValueOfInvestment = round((numOfStocks * endStockPrice), 2)
     endStockInfo = "The value of the stock on " + endDate + " was $" + str(endStockPrice)
-    endInvestmentInfo = "The value of your investment on " + endDate + "was worth $" + str(endValueOfInvestment)
+    endInvestmentInfo = "The value of your investment on " + endDate + " was worth $" + str(endValueOfInvestment)
 
     investmentGain = round((endValueOfInvestment - initInvestment), 2)
     investmentGainInfo = "Your investment gained $" + str(investmentGain)
