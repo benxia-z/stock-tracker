@@ -1,6 +1,7 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
 import matplotlib
+import numpy as np
 import io
 
 from datetime import datetime
@@ -30,7 +31,7 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
 
     endValueOfInvestment = round((numOfStocks * endStockPrice), 2)
     endStockInfo = "The value of the stock on " + endDate + " was $" + str(endStockPrice)
-    endInvestmentInfo = "Your investment was worth $" + str(endValueOfInvestment) + " on " + endDate
+    endInvestmentInfo = "The value of your investment on " + endDate + "was worth $" + str(endValueOfInvestment)
 
     investmentGain = round((endValueOfInvestment - initInvestment), 2)
     investmentGainInfo = "Your investment gained $" + str(investmentGain)
@@ -57,6 +58,7 @@ def stockPriceLocator(name1, date):
 def stockPlotter(name2, startDate2, endDate2):
     stockName = yf.Ticker(name2)
     dateList = []
+    dateNumbersList = []
     priceList = []
     xTicks = []
     yTicks = []
@@ -69,51 +71,46 @@ def stockPlotter(name2, startDate2, endDate2):
         priceList.append(row.Close)
 
     dateListSize = len(dateList)
+    #dateNumbersList = range(0, dateListSize)
 
-    if(dateListSize < 15):
-        xTicks = dateList
-        yTicks = priceList
-    elif(dateListSize < 45):
-        for i in range(0, dateListSize, 3):
-            xTicks.append(dateList[i])
-            yTicks.append(priceList[i])
-    elif(dateListSize < 90):
-        for i in range(0, dateListSize, 6):
-            xTicks.append(dateList[i])
-            yTicks.append(priceList[i])
-    elif (dateListSize < 180):
-        for i in range(0, dateListSize, 12):
-            xTicks.append(dateList[i])
-            yTicks.append(priceList[i])
-    elif (dateListSize < 1825):
-        for i in range(0, dateListSize, 60):
-            xTicks.append(dateList[i])
-            yTicks.append(priceList[i])
-    elif (dateListSize < 3650):
-        for i in range(0, dateListSize, 120):
-            xTicks.append(dateList[i])
-            yTicks.append(priceList[i])
-    else:
-        for i in range(0, dateListSize, 365):
-            xTicks.append(dateList[i])
-            yTicks.append(priceList[i])
-
-    print (xTicks)
-    print (yTicks)
-
-    plt.figure()
-    plt.plot(xTicks, yTicks)
+    fig, ax = plt.subplots()
+    plt.plot(dateList, priceList)
     plt.title(name2 + " Performance", fontsize = 20)
 
+    if(dateListSize < 15):
+        ax.set_xticks(dateList[::1])
+        ax.set_xticklabels(dateList[::1], rotation=90)
+    elif(dateListSize < 45):
+        ax.set_xticks(dateList[::3])
+        ax.set_xticklabels(dateList[::3], rotation=90)
+    elif(dateListSize < 90):
+        ax.set_xticks(dateList[::6])
+        ax.set_xticklabels(dateList[::6], rotation=90)
+    elif (dateListSize < 180):
+        ax.set_xticks(dateList[::12])
+        ax.set_xticklabels(dateList[::12], rotation=90)
+    elif (dateListSize < 1825):
+        ax.set_xticks(dateList[::60])
+        ax.set_xticklabels(dateList[::60], rotation=90)
+    elif (dateListSize < 3650):
+        ax.set_xticks(dateList[::180])
+        ax.set_xticklabels(dateList[::180], rotation=90)
+    else:
+        ax.set_xticks(dateList[::365])
+        ax.set_xticklabels(dateList[::365], rotation=90)
+
+    print (dateList)
+    print (priceList)
+
     plt.xlabel('Date', fontsize = 12)
-    plt.xticks(rotation = 90)
+    #plt.xticks(rotation = 90)
     plt.ylabel('Price ($)', fontsize = 12)
     plt.gcf().subplots_adjust(bottom=0.25)
-
+    #plt.show()
     bytes_image = io.BytesIO()
     plt.savefig(bytes_image, format='png')
     bytes_image.seek(0)
-    return bytes_image
+    return bytes_imageS
 
 #accepted = False
 #while(accepted == False):
@@ -126,4 +123,4 @@ def stockPlotter(name2, startDate2, endDate2):
 #        stock = input("Stock is invalid. Please enter a new stock: ")
 
 #print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
-#stockPlotter(stock, investmentDate, compareDate)
+#stockPlotter("AMZN", "2000-02-03", "2020-02-07")
