@@ -1,5 +1,6 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
+import io
 
 from datetime import datetime
 
@@ -36,7 +37,7 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
                   'endStockInfo': endStockInfo,
                   'endInvestmentInfo': endInvestmentInfo,
                   'investmentGainInfo': investmentGainInfo,
-                  'percentageGaininfo': percentageGaininfo} 
+                  'percentageGaininfo': percentageGaininfo}
 
     return (returnInfo)
 
@@ -89,7 +90,11 @@ def stockPlotter(name2, startDate2, endDate2):
     plt.xlabel('Date', fontsize = 14)
     plt.xticks(rotation = 60)
     plt.ylabel('Price ($)', fontsize = 14)
-    plt.show()
+
+    bytes_image = io.BytesIO()
+    plt.savefig(bytes_image, format='png')
+    bytes_image.seek(0)
+    return bytes_image
+
 
 print(stockPriceCalculator("TSLA", 1000, "2020-01-02", "2020-02-07"))
-stockPlotter("TSLA", "2020-01-02", "2020-02-07")
