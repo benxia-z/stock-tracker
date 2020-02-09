@@ -122,5 +122,5 @@ def stockPlotter(name2, startDate2, endDate2):
 ##except:
 ##    stock = input("Stock is invalid. Please enter a new stock: ")
 
-print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
-stockPlotter(stock, investmentDate, compareDate)
+#print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
+#stockPlotter(stock, investmentDate, compareDate)
