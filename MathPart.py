@@ -110,7 +110,7 @@ def stockPlotter(name2, startDate2, endDate2):
     bytes_image = io.BytesIO()
     plt.savefig(bytes_image, format='png')
     bytes_image.seek(0)
-    return bytes_imageS
+    return bytes_image
 
 
 def isStockReal(stock):
