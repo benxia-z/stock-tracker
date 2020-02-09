@@ -112,12 +112,12 @@ investAmount = float(input("Enter initial investment amount: "))
 investmentDate = input("Enter the date (YYYY-MM-DD) you wish you invest on: ")
 compareDate = input("Enter another date (YYYY-MM-DD) to see the performance of the stock over time: ")
 
-try:
-    stockName = yf.Ticker(stock)
-    stockDataTable = stockName.history(start = investmentDate)
-    accepted = True
-except:
-    stock = input("Stock is invalid. Please enter a new stock: ")
+##try:
+##    stockName = yf.Ticker(stock)
+##    stockDataTable = stockName.history(start = investmentDate)
+##    accepted = True
+##except:
+##    stock = input("Stock is invalid. Please enter a new stock: ")
 
 print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
 stockPlotter(stock, investmentDate, compareDate)
