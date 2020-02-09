@@ -17,20 +17,23 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
     endStockPrice = stockPriceLocator(name, endDate)
 
     numOfStocks = int(initAmount/initStockPrice)
-    print ("The value of the stock on " + startDate + " was $" + str(initStockPrice))
+    startInfo = "The value of the stock on " + startDate + " was $" + str(initStockPrice)
     initInvestment = numOfStocks * initStockPrice
-    print("You were able to buy " + str(numOfStocks) + " stocks at $" + str(initInvestment))
+    buyInfo = "You were able to buy " + str(numOfStocks) + " stocks at $" + str(initInvestment)
 
     endValueOfInvestment = round((numOfStocks * endStockPrice), 2)
-    print ("The value of the stock on " + endDate + " was $" + str(endStockPrice))
-    print("Your investment was worth $" + str(endValueOfInvestment) + " on " + endDate)
+    endStockInfo = "The value of the stock on " + endDate + " was $" + str(endStockPrice)
+    endInvestmentInfo = "Your investment was worth $" + str(endValueOfInvestment) + " on " + endDate
 
     investmentGain = round((endValueOfInvestment - initInvestment), 2)
-    print("Your investment gained $" + str(investmentGain))
+    investmentGainInfo = "Your investment gained $" + str(investmentGain)
 
     percentageGain = round(((endValueOfInvestment - initInvestment)/initInvestment) * 100, 2)
-    print("That's a " + str(percentageGain) + "% gain!")
+    percentageGaininfo = "That's a " + str(percentageGain) + "% gain!"
 
+    returnInfo = startInfo + '\n' + buyInfo + '\n' + endStockInfo + '\n' + endInvestmentInfo + '\n' + investmentGainInfo + '\n' + percentageGaininfo + '\n'
+
+    return (returnInfo)
 
 def stockPriceLocator(name1, date):
     stockName = yf.Ticker(name1)
@@ -46,6 +49,8 @@ def stockPlotter(name2, startDate2, endDate2):
     dateList = []
     priceList = []
     xTicks = []
+    yTicks = []
+    dateListSize = 0
     stockDataTable = stockName.history(start = startDate2, end = endDate2)
 
     for row in stockDataTable.itertuples():
@@ -53,17 +58,25 @@ def stockPlotter(name2, startDate2, endDate2):
         dateList.append(dateString)
         priceList.append(row.Close)
 
-    print (dateList)
-    print (priceList)
-    #if(dateList.len() < 15):
-    #    xTicks = dateList[]
-    #elif(dateList.len() < 45):
-    #    for 
-    plt.plot(dateList, priceList)
+    dateListSize = len(dateList)
+
+    if(dateListSize < 15):
+        xTicks = dateList
+        yTicks = priceList
+    elif(dateListSize < 45):
+        for i in range(0, dateListSize, 3):
+            xTicks.append(dateList[i])
+            yTicks.append(priceList[i])
+
+    print (xTicks)
+    print (yTicks)
+
+    plt.plot(xTicks, yTicks)
     plt.title(name2 + " Performance", fontsize = 20)
     plt.xlabel('Date', fontsize = 14)
+    plt.xticks(rotation = 60)
     plt.ylabel('Price ($)', fontsize = 14)
     plt.show()
 
-stockPriceCalculator("005490.KS", 1000, "2020-01-21", "2020-02-07")
-stockPlotter("005490.KS", "2020-01-21", "2020-02-07")
+print(stockPriceCalculator("TSLA", 1000, "2020-01-02", "2020-02-07"))
+stockPlotter("TSLA", "2020-01-02", "2020-02-07")
