@@ -1,9 +1,10 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
+import matplotlib
 import io
 
 from datetime import datetime
-
+matplotlib.use('agg')
 def stockPriceCalculator(name, initAmount, startDate, endDate):
     numOfStocks = 0
     initInvestment = 0.00
