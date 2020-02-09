@@ -121,7 +121,7 @@ def stockPlotter(name2, startDate2, endDate2):
 
 
 def isStockReal(stock):
-    stockName = yf.Ticker("stock")
+    stockName = yf.Ticker(stock)
     stockDataTable = stockName.history(start = "2020-02-07")
     if not(stockDataTable.empty):
         return True
