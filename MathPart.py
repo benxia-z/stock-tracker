@@ -33,10 +33,14 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
     endInvestmentInfo = "Your investment was worth $" + str(endValueOfInvestment) + " on " + endDate
 
     investmentGain = round((endValueOfInvestment - initInvestment), 2)
-    investmentGainInfo = "Your investment gained $" + str(investmentGain)
-
     percentageGain = round(((endValueOfInvestment - initInvestment)/initInvestment) * 100, 2)
-    percentageGaininfo = "That's a " + str(percentageGain) + "% gain!"
+
+    if(investmentGain < 0):
+        investmentGainInfo = "Your investment lost $" + str(investmentGain)
+        percentageGaininfo = "That's a " + str(percentageGain) + "% loss!"
+    else:
+        investmentGainInfo = "Your investment gained $" + str(investmentGain)
+        percentageGaininfo = "That's a " + str(percentageGain) + "% gain!"
 
     returnInfo = {'startInfo': startInfo,
                   'buyInfo': buyInfo,
