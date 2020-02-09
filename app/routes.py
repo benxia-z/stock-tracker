@@ -12,19 +12,25 @@ def index():
     stock = ''
     submitted = False
     error = None
+    error1 = None
     if request.method == 'POST':
         stock = request.form.get('stock')
         init = request.form.get('init')
         start = request.form.get('start')
         end = request.form.get('end')
         submitted = request.form.get('submitted')
+        if stock == None:
+            stock = ''
+            return render_template('index.html')
         if not mp.isStockReal(stock):
             error = True
             return render_template('index.html', error=error)
         if submitted == 'Try Again?':
-            submitted = False
             return redirect(url_for('index'))
         answers = mp.stockPriceCalculator(stock, round(float(init), 2), start, end)
+        if answers == False:
+            error1 = True
+            return render_template('index.html', error1=error1)
         bytes_obj = mp.stockPlotter(stock, start, end)
         submitted = True
         # session['stock'] = stock

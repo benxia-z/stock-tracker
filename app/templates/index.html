@@ -11,6 +11,11 @@
       Invalid stock. Please try again.
     </div>
     {% endif %}
+    {% if error1 %}
+    <div class="alert alert-danger" role="alert">
+      You were not able to buy any stocks with your initial investment.
+    </div>
+    {% endif %}
     {% if not submitted %}
     <form class="text-left" action="/index" method="POST">
       <div class="form-group mb-2">
