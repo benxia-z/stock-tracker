@@ -99,6 +99,7 @@ def stockPlotter(name2, startDate2, endDate2):
             xTicks.append(dateList[i])
             yTicks.append(priceList[i])
 
+    plt.figure()
     plt.plot(xTicks, yTicks)
     plt.title(name2 + " Performance", fontsize = 20)
 
@@ -111,13 +112,3 @@ def stockPlotter(name2, startDate2, endDate2):
     plt.savefig(bytes_image, format='png')
     bytes_image.seek(0)
     return bytes_image
-
-
-print(stockPriceCalculator("TSLA", 1000, "2020-01-02", "2020-02-07"))
-stock = input("Enter stock: ")
-investAmount = float(input("Enter initial investment amount: "))
-investmentDate = input("Enter the date (YYYY-MM-DD) you wish you invest on: ")
-compareDate = input("Enter another date (YYYY-MM-DD) to see the performance of the stock over time: ")
-
-print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
-stockPlotter(stock, investmentDate, compareDate)

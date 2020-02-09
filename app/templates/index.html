@@ -2,11 +2,13 @@
 
 {% block content %}
   <h1>Hello, test</h1>
-  <img src='http://127.0.0.1:5000/plots/mainplot' />
-  <form method="POST">
+  <img src='data:image/png;base64,{{ plot_url }}' />
+  <form action="/index" method="POST">
       Stock: <input type="text" name="stock"><br>
+      Initial Investment: <input type="text" name="init"><br>
+      Start Date: <input type="text" name="start"><br>
+      End Date: <input type="text" name="end"><br>
       <input type="submit" value="Submit"><br>
  </form>
-  <p>{{ stock }}</p>
 
 {% endblock %}
