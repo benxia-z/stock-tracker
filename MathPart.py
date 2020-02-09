@@ -22,9 +22,9 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
     numOfStocks = int(initAmount/initStockPrice)
     startInfo = "The value of the stock on " + startDate + " was $" + str(initStockPrice)
 
-    while (numOfStocks == 0):
-        initAmount = float(input("You were not able to buy any stocks with your initial investment. Please enter a new amount: "))
-        numOfStocks = int(initAmount/initStockPrice)
+    if (numOfStocks == 0):
+        print("You were not able to buy any stocks with your initial investment. Please enter a new amount: ")
+        return False
 
     initInvestment = numOfStocks * initStockPrice
     buyInfo = "You were able to buy " + str(numOfStocks) + " stocks at $" + str(initInvestment)
@@ -112,15 +112,16 @@ def stockPlotter(name2, startDate2, endDate2):
     bytes_image.seek(0)
     return bytes_imageS
 
-#accepted = False
-#while(accepted == False):
-#    stockName = yf.Ticker("AMZN")
-#    stockDataTable = stockName.history(start = "2020-02-07")
-#    if not(stockDataTable.empty):
-#        print (stockDataTable)
-#        accepted = True
-#    else:
-#        stock = input("Stock is invalid. Please enter a new stock: ")
+
+def isStockReal(stock):
+    stockName = yf.Ticker("AMZN")
+    stockDataTable = stockName.history(start = "2020-02-07")
+    if not(stockDataTable.empty):
+        return True
+    else:
+        return False
+
+
 
 #print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
 #stockPlotter("AMZN", "2000-02-03", "2020-02-07")
