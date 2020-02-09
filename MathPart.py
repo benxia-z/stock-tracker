@@ -48,11 +48,10 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
     return (returnInfo)
 
 def stockPriceLocator(name1, date):
-    stockName = yf.Ticker(name1)
     stockPrice = 0.00
-
-    stockDataTable = stockName.history(start = date, end = date)
-    stockPrice = float(stockDataTable.loc[date, "Close"])
+    stockName = yf.Ticker(name1)
+    stockDataTable = stockName.history(start = date)
+    stockPrice = float(stockDataTable["Close"][0])
     return stockPrice
 
 def stockPlotter(name2, startDate2, endDate2):
@@ -99,6 +98,9 @@ def stockPlotter(name2, startDate2, endDate2):
             xTicks.append(dateList[i])
             yTicks.append(priceList[i])
 
+    print (xTicks)
+    print (yTicks)
+
     plt.figure()
     plt.plot(xTicks, yTicks)
     plt.title(name2 + " Performance", fontsize = 20)
@@ -112,3 +114,13 @@ def stockPlotter(name2, startDate2, endDate2):
     plt.savefig(bytes_image, format='png')
     bytes_image.seek(0)
     return bytes_image
+
+try:
+    stockName = yf.Ticker(stock)
+    stockDataTable = stockName.history(start = investmentDate)
+    accepted = True
+except:
+    stock = input("Stock is invalid. Please enter a new stock: ")
+
+print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
+stockPlotter(stock, investmentDate, compareDate)
