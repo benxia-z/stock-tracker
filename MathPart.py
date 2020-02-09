@@ -1,6 +1,5 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
-
 from datetime import datetime
 
 def stockPriceCalculator(name, initAmount, startDate, endDate):
@@ -36,7 +35,7 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
                   'endStockInfo': endStockInfo,
                   'endInvestmentInfo': endInvestmentInfo,
                   'investmentGainInfo': investmentGainInfo,
-                  'percentageGaininfo': percentageGaininfo} 
+                  'percentageGaininfo': percentageGaininfo}
 
     return (returnInfo)
 
@@ -76,8 +75,20 @@ def stockPlotter(name2, startDate2, endDate2):
         for i in range(0, dateListSize, 6):
             xTicks.append(dateList[i])
             yTicks.append(priceList[i])
-    elif(dateListSize < 90):
-        for i in range(0, dateListSize, 6):
+    elif (dateListSize < 180):
+        for i in range(0, dateListSize, 12):
+            xTicks.append(dateList[i])
+            yTicks.append(priceList[i])
+    elif (dateListSize < 1825):
+        for i in range(0, dateListSize, 60):
+            xTicks.append(dateList[i])
+            yTicks.append(priceList[i])
+    elif (dateListSize < 3650):
+        for i in range(0, dateListSize, 120):
+            xTicks.append(dateList[i])
+            yTicks.append(priceList[i])
+    else:
+        for i in range(0, dateListSize, 365):
             xTicks.append(dateList[i])
             yTicks.append(priceList[i])
 
@@ -86,10 +97,11 @@ def stockPlotter(name2, startDate2, endDate2):
 
     plt.plot(xTicks, yTicks)
     plt.title(name2 + " Performance", fontsize = 20)
-    plt.xlabel('Date', fontsize = 14)
-    plt.xticks(rotation = 60)
-    plt.ylabel('Price ($)', fontsize = 14)
+    plt.xlabel('Date', fontsize = 12)
+    plt.xticks(rotation = 90)
+    plt.ylabel('Price ($)', fontsize = 12)
+    plt.gcf().subplots_adjust(bottom=0.25)
     plt.show()
 
-print(stockPriceCalculator("TSLA", 1000, "2020-01-02", "2020-02-07"))
-stockPlotter("TSLA", "2020-01-02", "2020-02-07")
+print(stockPriceCalculator("DIS", 1000, "1990-02-12", "2020-02-07"))
+stockPlotter("DIS", "1990-02-12", "2020-02-07")
