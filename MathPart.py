@@ -95,15 +95,13 @@ def stockPlotter(name2, startDate2, endDate2):
             xTicks.append(dateList[i])
             yTicks.append(priceList[i])
 
-    print (xTicks)
-    print (yTicks)
-
     plt.plot(xTicks, yTicks)
     plt.title(name2 + " Performance", fontsize = 20)
 
-    plt.xlabel('Date', fontsize = 14)
-    plt.xticks(rotation = 60)
-    plt.ylabel('Price ($)', fontsize = 14)
+    plt.xlabel('Date', fontsize = 12)
+    plt.xticks(rotation = 90)
+    plt.ylabel('Price ($)', fontsize = 12)
+    plt.gcf().subplots_adjust(bottom=0.25)
 
     bytes_image = io.BytesIO()
     plt.savefig(bytes_image, format='png')
@@ -112,12 +110,3 @@ def stockPlotter(name2, startDate2, endDate2):
 
 
 print(stockPriceCalculator("TSLA", 1000, "2020-01-02", "2020-02-07"))
-
-    plt.xlabel('Date', fontsize = 12)
-    plt.xticks(rotation = 90)
-    plt.ylabel('Price ($)', fontsize = 12)
-    plt.gcf().subplots_adjust(bottom=0.25)
-    plt.show()
-
-print(stockPriceCalculator("DIS", 1000, "1990-02-12", "2020-02-07"))
-stockPlotter("DIS", "1990-02-12", "2020-02-07")
