@@ -25,7 +25,7 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
         print("You were not able to buy any stocks with your initial investment. Please enter a new amount: ")
         return False
 
-    initInvestment = numOfStocks * initStockPrice
+    initInvestment = round((numOfStocks * initStockPrice), 2)
     buyInfo = "You were able to buy " + str(numOfStocks) + " stocks at $" + str(initInvestment)
 
     endValueOfInvestment = round((numOfStocks * endStockPrice), 2)
