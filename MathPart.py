@@ -49,7 +49,6 @@ def stockPriceLocator(name1, date):
     stockName = yf.Ticker(name1)
     stockDataTable = stockName.history(start = date)
     stockPrice = float(stockDataTable["Close"][0])
-    accepted = True
     return stockPrice
 
 def stockPlotter(name2, startDate2, endDate2):
