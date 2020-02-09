@@ -34,10 +34,14 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
     endInvestmentInfo = "The value of your investment on " + endDate + " was worth $" + str(endValueOfInvestment)
 
     investmentGain = round((endValueOfInvestment - initInvestment), 2)
-    investmentGainInfo = "Your investment gained $" + str(investmentGain)
-
     percentageGain = round(((endValueOfInvestment - initInvestment)/initInvestment) * 100, 2)
-    percentageGaininfo = "That's a " + str(percentageGain) + "% gain!"
+
+    if(investmentGain < 0):
+        investmentGainInfo = "Your investment lost $" + str(investmentGain)
+        percentageGaininfo = "That's a " + str(percentageGain) + "% loss!"
+    else:
+        investmentGainInfo = "Your investment gained $" + str(investmentGain)
+        percentageGaininfo = "That's a " + str(percentageGain) + "% gain!"
 
     returnInfo = {'startInfo': startInfo,
                   'buyInfo': buyInfo,
@@ -114,7 +118,7 @@ def stockPlotter(name2, startDate2, endDate2):
 
 
 def isStockReal(stock):
-    stockName = yf.Ticker("AMZN")
+    stockName = yf.Ticker("stock")
     stockDataTable = stockName.history(start = "2020-02-07")
     if not(stockDataTable.empty):
         return True
