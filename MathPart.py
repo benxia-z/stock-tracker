@@ -115,12 +115,15 @@ def stockPlotter(name2, startDate2, endDate2):
     bytes_image.seek(0)
     return bytes_image
 
-##try:
-##    stockName = yf.Ticker(stock)
-##    stockDataTable = stockName.history(start = investmentDate)
-##    accepted = True
-##except:
-##    stock = input("Stock is invalid. Please enter a new stock: ")
+#accepted = False
+#while(accepted == False):
+#    stockName = yf.Ticker("AMZN")
+#    stockDataTable = stockName.history(start = "2020-02-07")
+#    if not(stockDataTable.empty):
+#        print (stockDataTable)
+#        accepted = True
+#    else:
+#        stock = input("Stock is invalid. Please enter a new stock: ")
 
 #print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
 #stockPlotter(stock, investmentDate, compareDate)
