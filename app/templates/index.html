@@ -6,6 +6,11 @@
   <h1>Stock Tracker</h1>
   <div class="container d-flex w-100 h-100 p-3 mx-auto flex-column">
     <img src='data:image/png;base64,{{ plot_url }}' alt="No Stock Currently Entered"/>
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+      Invalid stock. Please try again.
+    </div>
+    {% endif %}
     {% if not submitted %}
     <form class="text-left" action="/index" method="POST">
       <div class="form-group mb-2">

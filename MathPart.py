@@ -22,7 +22,7 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
     numOfStocks = int(initAmount/initStockPrice)
     startInfo = "The value of the stock on " + startDate + " was $" + str(initStockPrice)
 
-    if (numOfStocks == 0):
+    if (numOfStocks <= 0):
         print("You were not able to buy any stocks with your initial investment. Please enter a new amount: ")
         return False
 
@@ -114,7 +114,7 @@ def stockPlotter(name2, startDate2, endDate2):
 
 
 def isStockReal(stock):
-    stockName = yf.Ticker("AMZN")
+    stockName = yf.Ticker(stock)
     stockDataTable = stockName.history(start = "2020-02-07")
     if not(stockDataTable.empty):
         return True

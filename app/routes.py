@@ -11,7 +11,7 @@ def index():
     # pgain = mp.stockPriceCalculator("TSLA", 1000, "2020-02-03", "2020-02-07")
     stock = ''
     submitted = False
-    error = False
+    error = None
     if request.method == 'POST':
         stock = request.form.get('stock')
         init = request.form.get('init')
@@ -19,7 +19,8 @@ def index():
         end = request.form.get('end')
         submitted = request.form.get('submitted')
         if not mp.isStockReal(stock):
-            return render_template('index.html', stock=stock, plot_url=plot_url, submitted=submitted, answers=answers)
+            error = True
+            return render_template('index.html', error=error)
         if submitted == 'Try Again?':
             submitted = False
             return redirect(url_for('index'))
