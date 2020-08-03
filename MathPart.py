@@ -119,26 +119,12 @@ def stockPriceCalculator(firstStockName, secondStockName, thirdStockName, initAm
 
     return (returnInfo)
 
-def stockPriceLocator1(firstStock, date): #name1 = firstStock
-    firstStockPrice = 0.00
-    stockName = yf.Ticker(firstStock)
-    stockDataTable1 = stockName.history(start = date)
-    firstStockPrice = float(stockDataTable1["Close"][0])
-    return firstStockPrice
-
-def stockPriceLocator2(secondStock, date): #name1 = firstStock
-    secondStockPrice = 0.00
-    stockName = yf.Ticker(secondStock)
-    stockDataTable2 = stockName.history(start = date)
-    secondStockPrice = float(stockDataTable2["Close"][0])
-    return secondStockPrice
-
-def stockPriceLocator3(thirdStock, date): #name1 = firstStock
-    thirdStockPrice = 0.00
-    stockName = yf.Ticker(thirdStock)
-    stockDataTable3 = stockName.history(start = date)
-    thirdStockPrice = float(stockDataTable3["Close"][0])
-    return thirdStockPrice
+def stockPriceLocator(stock, date):
+    stockPrice = 0.00
+    stockName = yf.Ticker(stock)
+    stockDataTable = stockName.history(start = date)
+    stockPrice = float(stockDataTable["Close"][0])
+    return stockPrice
 
 def stockPlotter(firstStockProg, secondStockProg, thirdStockProg, startDate2, endDate2): #Implement multiple names (name1, name2 and name3?)
     stockName1 = yf.Ticker(firstStockProg)
@@ -234,4 +220,4 @@ def isStockReal(stock):
 
 #print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
 
-stockPlotter("AMZN", "TSLA", "DIS", "2000-02-03", "2020-02-07")
+stockPlotter("AMZN", "TSLA", "DIS", "2020-01-01", "2020-08-01")
