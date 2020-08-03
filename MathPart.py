@@ -6,13 +6,14 @@ import io
 
 from datetime import datetime
 matplotlib.use('agg')
+
 def stockPriceCalculator(name, initAmount, startDate, endDate):
     numOfStocks = 0
     initInvestment = 0.00
     initStockPrice = 0.00
     endStockPrice = 0.00
     endValueOfInvestment = 0.00
-    investmentGain = 0.00
+    investmentGain = 0.00   
     percentageGain = 0.00
 
 
