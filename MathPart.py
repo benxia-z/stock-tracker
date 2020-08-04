@@ -16,6 +16,7 @@ class Stock:
         self.init_amount = init_amount
         self.start_date = start_date
         self.end_date = end_date
+        self.ticker_info = yf.Ticker(stock_name)
         
         #gets price of stock on the start and end dates
         self.init_stock_price = self.stock_price_locator(stock_name, start_date)
@@ -37,8 +38,7 @@ class Stock:
 
     def stock_price_locator(self, stock, date):
         stockPrice = 0.00
-        stockName = yf.Ticker(stock)
-        stockDataTable = stockName.history(start = date)
+        stockDataTable = self.ticker_info.history(start=date)
         stockPrice = float(stockDataTable["Close"][0])
         return stockPrice
     
@@ -60,13 +60,81 @@ class Stock:
          'End Investment Info': "The value of your investment on " + self.end_date + " was worth $" + str(self.final_investment_amount),
          'Investment Gain info': self.investment_gain_info,
          'Percentage Gain Info': self.percentage_gain_info}
+
+
+class StockPlotter:
+
+    def __init__(self, *args):
         
+        fig, ax = plt.subplots()
+        graph_title = ""
+        date_list = []
+        first_stock_data_table = args[0].ticker_info.history(start = stock.start_date, end = stock.end_date)
+
+        for row in first_stock_data_table.itertuples():
+            date_string = row.Index.strftime("%Y-%m-%d")
+            date_list.append(date_string)
         
+        date_list_size = len(date_list)
+
+        for stock in args:
+            
+            stock_ticker = stock.ticker_info
+            price_list = []
+            stock_data_table = stock_ticker.history(start = stock.start_date, end = stock.end_date)
+
+            for row in stock_data_table.itertuples():
+                price_list.append(row.Close)
+            
+            
+
+            plt.plot(date_list, price_list, label = stock.stock_name)
+            graph_title += stock.stock_name + ", "
+
         
-        self.endStockPrice = 0.00
-        self.endValueOfInvestment = 0.00
-        self.investmentGain = 0.00
-        self.percentageGain = 0.00
+        plt.legend(loc = 'upper left')
+
+        #Is there a way to improve on this code so it's not a bunch of if-else statements?
+        #The goal is for PyPlot to be able to display
+
+        if(date_list_size < 15):
+            ax.set_xticks(dateList[::1])
+            ax.set_xticklabels(dateList[::1], rotation=90)
+        elif(date_list_size < 45):
+            ax.set_xticks(dateList[::3])
+            ax.set_xticklabels(dateList[::3], rotation=90)
+        elif(date_list_size < 90):
+            ax.set_xticks(dateList[::6])
+            ax.set_xticklabels(dateList[::6], rotation=90)
+        elif (date_list_size < 180):
+            ax.set_xticks(dateList[::12])
+            ax.set_xticklabels(dateList[::12], rotation=90)
+        elif (date_list_size < 1825):
+            ax.set_xticks(dateList[::60])
+            ax.set_xticklabels(dateList[::60], rotation=90)
+        elif (date_list_size < 3650):
+            ax.set_xticks(dateList[::180])
+            ax.set_xticklabels(dateList[::180], rotation=90)
+        else:
+            ax.set_xticks(dateList[::365])
+            ax.set_xticklabels(dateList[::365], rotation=90)
+        #print (dateList)
+        #print (priceList)
+
+        plt.xlabel('Date', fontsize = 12)
+        #plt.xticks(rotation = 90)
+        plt.ylabel('Price ($)', fontsize = 12)
+        plt.gcf().subplots_adjust(bottom=0.25)
+        # plt.show()
+        self.bytes_image = io.BytesIO()
+        plt.savefig(self.bytes_image, format='png')
+        self.bytes_image.seek(0)
+    
+    def graph_return(self):
+        return self.bytes_image
+        
+
+        
 
 def stockPlotter(firstStockProg, secondStockProg, thirdStockProg, startDate2, endDate2): #Implement multiple names (name1, name2 and name3?)
     stockName1 = yf.Ticker(firstStockProg)
@@ -81,7 +149,7 @@ def stockPlotter(firstStockProg, secondStockProg, thirdStockProg, startDate2, en
     priceList3 = []
     xTicks = []
     yTicks = []
-    dateListSize = 0
+    date_list_size = 0
     stockDataTable1 = stockName1.history(start = startDate2, end = endDate2)
     stockDataTable2 = stockName2.history(start = startDate2, end = endDate2)
     stockDataTable3 = stockName3.history(start = startDate2, end = endDate2)
@@ -101,8 +169,7 @@ def stockPlotter(firstStockProg, secondStockProg, thirdStockProg, startDate2, en
         dateList3.append(dateString)
         priceList3.append(row.Close)
 
-    dateListSize = len(dateList)
-    dateNumbersList = range(0, dateListSize)
+    date_list_size = len(dateList)
 
     fig, ax = plt.subplots()
     plt.plot(dateList, priceList, label = firstStockProg)
@@ -114,22 +181,22 @@ def stockPlotter(firstStockProg, secondStockProg, thirdStockProg, startDate2, en
     #Is there a way to improve on this code so it's not a bunch of if-else statements?
     #The goal is for PyPlot to be able to display
 
-    if(dateListSize < 15):
+    if(date_list_size < 15):
         ax.set_xticks(dateList[::1])
         ax.set_xticklabels(dateList[::1], rotation=90)
-    elif(dateListSize < 45):
+    elif(date_list_size < 45):
         ax.set_xticks(dateList[::3])
         ax.set_xticklabels(dateList[::3], rotation=90)
-    elif(dateListSize < 90):
+    elif(date_list_size < 90):
         ax.set_xticks(dateList[::6])
         ax.set_xticklabels(dateList[::6], rotation=90)
-    elif (dateListSize < 180):
+    elif (date_list_size < 180):
         ax.set_xticks(dateList[::12])
         ax.set_xticklabels(dateList[::12], rotation=90)
-    elif (dateListSize < 1825):
+    elif (date_list_size < 1825):
         ax.set_xticks(dateList[::60])
         ax.set_xticklabels(dateList[::60], rotation=90)
-    elif (dateListSize < 3650):
+    elif (date_list_size < 3650):
         ax.set_xticks(dateList[::180])
         ax.set_xticklabels(dateList[::180], rotation=90)
     else:
@@ -162,4 +229,8 @@ def isStockReal(stock):
 
 #print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
 
-stockPlotter("AMZN", "TSLA", "DIS", "2020-01-01", "2020-08-01")
+#stockPlotter("AMZN", "TSLA", "DIS", "2020-01-01", "2020-08-01")
+
+if __name__ == "__main__":
+    amazon_stock = Stock("AMZN", 5000, "2020-01-01", "2020-08-01")
+    amazon_stock.info_print_out()
