@@ -8,10 +8,6 @@ from datetime import datetime
 #matplotlib.use('agg')
 
 #class represents stock object with an initial investment amount and start and end dates of investment
-amazon_stock = Stock('AMZN', 1000, '2010-01-01', '2020-01-01')
-amazon_stock.info_print_out()
-info_print_out()
-
 class Stock:
     
     def __init__(self, stock_name, init_amount, start_date, end_date):
