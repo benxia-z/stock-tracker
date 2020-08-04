@@ -98,27 +98,27 @@ class StockPlotter:
         #The goal is for PyPlot to be able to display
 
         if(date_list_size < 15):
-            ax.set_xticks(dateList[::1])
-            ax.set_xticklabels(dateList[::1], rotation=90)
+            ax.set_xticks(date_list[::1])
+            ax.set_xticklabels(date_list[::1], rotation=90)
         elif(date_list_size < 45):
-            ax.set_xticks(dateList[::3])
-            ax.set_xticklabels(dateList[::3], rotation=90)
+            ax.set_xticks(date_list[::3])
+            ax.set_xticklabels(date_list[::3], rotation=90)
         elif(date_list_size < 90):
-            ax.set_xticks(dateList[::6])
-            ax.set_xticklabels(dateList[::6], rotation=90)
+            ax.set_xticks(date_list[::6])
+            ax.set_xticklabels(date_list[::6], rotation=90)
         elif (date_list_size < 180):
-            ax.set_xticks(dateList[::12])
-            ax.set_xticklabels(dateList[::12], rotation=90)
+            ax.set_xticks(date_list[::12])
+            ax.set_xticklabels(date_list[::12], rotation=90)
         elif (date_list_size < 1825):
-            ax.set_xticks(dateList[::60])
-            ax.set_xticklabels(dateList[::60], rotation=90)
+            ax.set_xticks(date_list[::60])
+            ax.set_xticklabels(date_list[::60], rotation=90)
         elif (date_list_size < 3650):
-            ax.set_xticks(dateList[::180])
-            ax.set_xticklabels(dateList[::180], rotation=90)
+            ax.set_xticks(date_list[::180])
+            ax.set_xticklabels(date_list[::180], rotation=90)
         else:
-            ax.set_xticks(dateList[::365])
-            ax.set_xticklabels(dateList[::365], rotation=90)
-        #print (dateList)
+            ax.set_xticks(date_list[::365])
+            ax.set_xticklabels(date_list[::365], rotation=90)
+        #print (date_list)
         #print (priceList)
 
         plt.xlabel('Date', fontsize = 12)
@@ -140,9 +140,9 @@ def stockPlotter(firstStockProg, secondStockProg, thirdStockProg, startDate2, en
     stockName1 = yf.Ticker(firstStockProg)
     stockName2 = yf.Ticker(secondStockProg)
     stockName3 = yf.Ticker(thirdStockProg)
-    dateList = []
-    dateList2 = []
-    dateList3 = []
+    date_list = []
+    date_list2 = []
+    date_list3 = []
     dateNumbersList = []
     priceList = []
     priceList2 = []
@@ -156,25 +156,25 @@ def stockPlotter(firstStockProg, secondStockProg, thirdStockProg, startDate2, en
 
     for row in stockDataTable1.itertuples():
         dateString = row.Index.strftime("%Y-%m-%d")
-        dateList.append(dateString)
+        date_list.append(dateString)
         priceList.append(row.Close)
 
     for row in stockDataTable2.itertuples():
         dateString = row.Index.strftime("%Y-%m-%d")
-        dateList2.append(dateString)
+        date_list2.append(dateString)
         priceList2.append(row.Close)
 
     for row in stockDataTable3.itertuples():
         dateString = row.Index.strftime("%Y-%m-%d")
-        dateList3.append(dateString)
+        date_list3.append(dateString)
         priceList3.append(row.Close)
 
-    date_list_size = len(dateList)
+    date_list_size = len(date_list)
 
     fig, ax = plt.subplots()
-    plt.plot(dateList, priceList, label = firstStockProg)
-    plt.plot(dateList2, priceList2, label = secondStockProg)
-    plt.plot(dateList3, priceList3, label = thirdStockProg)
+    plt.plot(date_list, priceList, label = firstStockProg)
+    plt.plot(date_list2, priceList2, label = secondStockProg)
+    plt.plot(date_list3, priceList3, label = thirdStockProg)
     plt.title(firstStockProg + ", " + secondStockProg + ", and " + thirdStockProg + " Performance", fontsize = 20)
     plt.legend(loc = 'upper left')
 
@@ -182,28 +182,28 @@ def stockPlotter(firstStockProg, secondStockProg, thirdStockProg, startDate2, en
     #The goal is for PyPlot to be able to display
 
     if(date_list_size < 15):
-        ax.set_xticks(dateList[::1])
-        ax.set_xticklabels(dateList[::1], rotation=90)
+        ax.set_xticks(date_list[::1])
+        ax.set_xticklabels(date_list[::1], rotation=90)
     elif(date_list_size < 45):
-        ax.set_xticks(dateList[::3])
-        ax.set_xticklabels(dateList[::3], rotation=90)
+        ax.set_xticks(date_list[::3])
+        ax.set_xticklabels(date_list[::3], rotation=90)
     elif(date_list_size < 90):
-        ax.set_xticks(dateList[::6])
-        ax.set_xticklabels(dateList[::6], rotation=90)
+        ax.set_xticks(date_list[::6])
+        ax.set_xticklabels(date_list[::6], rotation=90)
     elif (date_list_size < 180):
-        ax.set_xticks(dateList[::12])
-        ax.set_xticklabels(dateList[::12], rotation=90)
+        ax.set_xticks(date_list[::12])
+        ax.set_xticklabels(date_list[::12], rotation=90)
     elif (date_list_size < 1825):
-        ax.set_xticks(dateList[::60])
-        ax.set_xticklabels(dateList[::60], rotation=90)
+        ax.set_xticks(date_list[::60])
+        ax.set_xticklabels(date_list[::60], rotation=90)
     elif (date_list_size < 3650):
-        ax.set_xticks(dateList[::180])
-        ax.set_xticklabels(dateList[::180], rotation=90)
+        ax.set_xticks(date_list[::180])
+        ax.set_xticklabels(date_list[::180], rotation=90)
     else:
-        ax.set_xticks(dateList[::365])
-        ax.set_xticklabels(dateList[::365], rotation=90)
+        ax.set_xticks(date_list[::365])
+        ax.set_xticklabels(date_list[::365], rotation=90)
 
-    #print (dateList)
+    #print (date_list)
     #print (priceList)
 
     plt.xlabel('Date', fontsize = 12)
