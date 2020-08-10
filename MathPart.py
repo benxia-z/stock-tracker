@@ -3,20 +3,22 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 import io
+from datetime import datetime, date
+import copy
 
-from datetime import datetime
-#matplotlib.use('agg')
 
 #class represents stock object with an initial investment amount and start and end dates of investment
 class Stock:
     
-    def __init__(self, stock_name, init_amount, start_date, end_date):
-        
+    def __init__(self, stock_name, init_amount, start_date, end_date, recurring_investment, frequency_of_investments):
+        from datetime import date
         self.stock_name = stock_name
         self.init_amount = init_amount
-        self.start_date = start_date
-        self.end_date = end_date
+        self.start_date = date.fromisoformat(start_date)
+        self.end_date = date.fromisoformat(end_date)
         self.ticker_info = yf.Ticker(stock_name)
+        self.recurring_investment = recurring_investment
+        self.frequency_of_investments = frequency_of_investments
         
         #gets price of stock on the start and end dates
         self.init_stock_price = self.stock_price_locator(stock_name, start_date)
@@ -24,6 +26,7 @@ class Stock:
 
         #integer number of stocks you can buy
         self.num_of_stocks = init_amount // self.init_stock_price
+        self.buy_more_stocks()
         
         #can buy stocks or not
         self.can_buy_stock = True
@@ -42,6 +45,48 @@ class Stock:
         stockPrice = float(stockDataTable["Close"][0])
         return stockPrice
     
+    def buy_more_stocks(self):
+        
+        buy_date = copy.deepcopy(self.start_date)
+      
+        if (self.frequency_of_investments == "monthly"):
+            num_of_recurring_investments = (self.end_date.year - self.start_date.year) * 12 + (self.end_date.month - self.start_date.month)
+            
+            for i in range(num_of_recurring_investments):
+                buy_date = buy_date + datetime.timedelta(days=30)
+                recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
+                self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
+                self.init_investment_amount += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+                
+                
+        elif(self.frequency_of_investments == "quarterly"):
+            num_of_recurring_investments = (self.end_date.year - self.start_date.year) * 4 + (self.end_date.month - self.start_date.month) // 3
+
+            for i in range(num_of_recurring_investments):
+                buy_date = buy_date + datetime.timedelta(days=91)
+                recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
+                self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
+                self.init_investment_amount += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+
+                
+        elif(self.frequency_of_investments == "biyearly"):
+            num_of_recurring_investments = (self.end_date.year - self.start_date.year) * 2 + (self.end_date.month - self.start_date.month) // 6
+
+            for i in range(num_of_recurring_investments):
+                buy_date = buy_date + datetime.timedelta(days=182)
+                recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
+                self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
+                self.init_investment_amount += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+        else:
+            num_of_recurring_investments = (self.end_date.year - self.start_date.year)
+            
+            for i in range(num_of_recurring_investments):
+                buy_date = buy_date + datetime.timedelta(days=365)
+                recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
+                self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
+                self.init_investment_amount += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+
+
     def info_print_out(self):
         
         if(self.investment_gain >= 0):
@@ -61,11 +106,11 @@ class Stock:
          'Investment Gain info': self.investment_gain_info,
          'Percentage Gain Info': self.percentage_gain_info}
 
-
 class StockPlotter:
 
     def __init__(self, *args):
         
+        matplotlib.use('agg')
         fig, ax = plt.subplots()
         graph_title = ""
         date_list = []
@@ -232,5 +277,5 @@ def isStockReal(stock):
 #stockPlotter("AMZN", "TSLA", "DIS", "2020-01-01", "2020-08-01")
 
 if __name__ == "__main__":
-    amazon_stock = Stock("AMZN", 5000, "2020-01-01", "2020-08-01")
+    amazon_stock = Stock("AMZN", 5000, "2020-01-01", "2020-02-01")
     amazon_stock.info_print_out()
