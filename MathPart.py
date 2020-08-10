@@ -39,17 +39,21 @@ class Stock:
         self.investment_gain = round(self.final_investment_amount - self.init_investment_amount, 2)
         self.percentage_gain = round((self.investment_gain / self.init_investment_amount) * 100, 2)
 
+    #returns price of stock on given date
     def stock_price_locator(self, stock, date):
         stockPrice = 0.00
         stockDataTable = self.ticker_info.history(start=date)
         stockPrice = float(stockDataTable["Close"][0])
         return stockPrice
     
+    #adds to num_of_stocks and init_investment_amount attributes
     def buy_more_stocks(self):
         
+        #variable changes based on frequency of recurring investments
         buy_date = copy.deepcopy(self.start_date)
       
         if (self.frequency_of_investments == "monthly"):
+            #number of months between start and end dates
             num_of_recurring_investments = (self.end_date.year - self.start_date.year) * 12 + (self.end_date.month - self.start_date.month)
             
             for i in range(num_of_recurring_investments):
