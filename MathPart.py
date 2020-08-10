@@ -69,7 +69,7 @@ class StockPlotter:
         fig, ax = plt.subplots()
         graph_title = ""
         date_list = []
-        first_stock_data_table = args[0].ticker_info.history(start = stock.start_date, end = stock.end_date)
+        first_stock_data_table = args[0].ticker_info.history(start = args[0].start_date, end = args[0].end_date)
 
         for row in first_stock_data_table.itertuples():
             date_string = row.Index.strftime("%Y-%m-%d")
