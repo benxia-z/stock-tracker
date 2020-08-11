@@ -52,7 +52,7 @@ class Stock:
         #variable changes based on frequency of recurring investments
         buy_date = copy.deepcopy(self.start_date)
       
-        if (self.frequency_of_investments == "monthly"):
+        if(self.frequency_of_investments == "monthly"):
             #number of months between start and end dates
             num_of_recurring_investments = (self.end_date.year - self.start_date.year) * 12 + (self.end_date.month - self.start_date.month)
             
@@ -81,7 +81,7 @@ class Stock:
                 recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
                 self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
                 self.init_investment_amount += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
-        else:
+        elif(self.frequency_of_investments == "yearly"):
             num_of_recurring_investments = (self.end_date.year - self.start_date.year)
             
             for i in range(num_of_recurring_investments):
@@ -281,5 +281,5 @@ def isStockReal(stock):
 #stockPlotter("AMZN", "TSLA", "DIS", "2020-01-01", "2020-08-01")
 
 if __name__ == "__main__":
-    amazon_stock = Stock("AMZN", 5000, "2020-01-01", "2020-02-01")
+    amazon_stock = Stock("AMZN", 5000, "2020-01-01", "2020-03-01", 0, "none")
     amazon_stock.info_print_out()
