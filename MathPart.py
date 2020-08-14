@@ -11,7 +11,6 @@ import copy
 class Stock:
     
     def __init__(self, stock_name, init_amount, start_date, end_date, recurring_investment, frequency_of_investments):
-        from datetime import date
         self.stock_name = stock_name
         self.init_amount = init_amount
         self.start_date = date.fromisoformat(start_date)
@@ -72,7 +71,6 @@ class Stock:
                 self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
                 self.init_investment_amount += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
 
-                
         elif(self.frequency_of_investments == "biyearly"):
             num_of_recurring_investments = (self.end_date.year - self.start_date.year) * 2 + (self.end_date.month - self.start_date.month) // 6
 
@@ -81,6 +79,7 @@ class Stock:
                 recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
                 self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
                 self.init_investment_amount += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+
         elif(self.frequency_of_investments == "yearly"):
             num_of_recurring_investments = (self.end_date.year - self.start_date.year)
             
@@ -99,11 +98,11 @@ class Stock:
             self.investment_gain_info = "Your investment lost $" + str(self.investment_gain)
 
         if(self.investment_gain >= 0):
-            self.percentage_gain_info = "That's a  %" + self.percentage_gain + "gain !"
+            self.percentage_gain_info = "That's a  %" + str(self.percentage_gain) + "gain !"
         else:
-            self.percentage_gain_info = "That's a  %" + self.percentage_gain + "loss !"
+            self.percentage_gain_info = "That's a  %" + str(self.percentage_gain) + "loss !"
         
-        {'Start Info': "The value of " + self.stock_name + " on " + self.start_date + " was $" + str(self.init_stock_price),
+        return {'Start Info': "The value of " + self.stock_name + " on " + self.start_date + " was $" + str(self.init_stock_price),
          'Buy Info': "You were able to buy " + str(self.num_of_stocks) + " shares at $" + str(self.init_investment_amount),
          'Final Info': "The value of " + self.stock_name + " on " + self.end_date + " was $" + str(self.final_stock_price),
          'End Investment Info': "The value of your investment on " + self.end_date + " was worth $" + str(self.final_investment_amount),
@@ -282,4 +281,4 @@ def isStockReal(stock):
 
 if __name__ == "__main__":
     amazon_stock = Stock("AMZN", 5000, "2020-01-01", "2020-03-01", 0, "none")
-    amazon_stock.info_print_out()
+    print(amazon_stock.info_print_out())
