@@ -109,6 +109,11 @@ class Stock:
          'Investment Gain info': self.investment_gain_info,
          'Percentage Gain Info': self.percentage_gain_info}
 
+
+class  Portfolio()
+
+
+'''
 class StockPlotter:
 
     def __init__(self, *args):
@@ -180,10 +185,12 @@ class StockPlotter:
     
     def graph_return(self):
         return self.bytes_image
+
+'''
         
 
         
-
+'''
 def stockPlotter(firstStockProg, secondStockProg, thirdStockProg, startDate2, endDate2): #Implement multiple names (name1, name2 and name3?)
     stockName1 = yf.Ticker(firstStockProg)
     stockName2 = yf.Ticker(secondStockProg)
@@ -273,12 +280,9 @@ def isStockReal(stock):
     else:
         return False
 
+'''
 
-
-#print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
-
-#stockPlotter("AMZN", "TSLA", "DIS", "2020-01-01", "2020-08-01")
 
 if __name__ == "__main__":
-    amazon_stock = Stock("AMZN", 5000, "2020-01-01", "2020-03-01", 0, "none")
-    print(amazon_stock.info_print_out())
+    disney_stock = Stock("DIS", 5000, "2020-01-01", "2020-03-01", 0, "none")
+    print(disney_stock.init_amount)
