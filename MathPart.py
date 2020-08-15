@@ -109,9 +109,47 @@ class Stock:
          'Investment Gain info': self.investment_gain_info,
          'Percentage Gain Info': self.percentage_gain_info}
 
+#class aggregates stock objects
+class  Portfolio():
+    def __init__(self, *args):
+        self.tot_init_amount = 0
+        self.start_date = args[0].start_date
+        self.end_date = args[0].end_date
+        self.tot_recurring_investment = 0
+        self.tot_end_price = 0
+        self.tot_gain = 0
 
-class  Portfolio()
+        for stock in args:
+            self.total_init_amount += stock.init_investment_amount
+        
+        for stock in args:
+            self.tot_recurring_investment += stock.recurring_investment
+        
+        for stock in args:
+            self.tot_end_price += stock.final_investment_price
 
+        for stock in args:
+            self.tot_gain += stock.investment_gain
+        
+        self.tot_percentage_gain = round((self.tot_investment_gain / self.tot_init_amount) * 100, 2)
+    
+    def __str__(self):
+        
+        if(self.tot_gain >= 0):
+            self.tot_gain_info = "Your portfolio gained $" + str(self.tot_gain)
+        else:
+            self.tot_gain_info = "Your portfolio lost $" + str(self.tot_gain)
+
+        if(self.tot_percentage_gain >= 0):
+            self.percentage_gain_info = "That's a  %" + str(self.tot_percentage_gain) + "gain !"
+        else:
+            self.percentage_gain_info = "That's a  %" + str(self.tot_percentage_gain) + "loss !"
+        
+        return {'Start Info': "The value of your portfolio on " + self.start_date + " was $" + str(self.tot_init_amount),
+            'Final Info': "The value of your portfolio on" + self.end_date + " was $" + str(self.tot_end_price),
+            'Investment Gain info': self.tot_gain_info,
+            'Percentage Gain Info': self.percentage_gain_info}
+    
 
 '''
 class StockPlotter:
