@@ -18,6 +18,17 @@ class Stock:
         self.ticker_info = yf.Ticker(stock_name)
         self.recurring_investment = recurring_investment
         self.frequency_of_investments = frequency_of_investments
+        self.num_of_recurring_investments = 0
+        #list to store all dates between start and end dates
+        self.dates = []
+        #list to store all prices of the stock between the start and end date
+        self.prices = []
+        #list to store how much user has invested in stock for all days in the date list
+        self.invested_amount = []
+        #list to store the dates recurring investments are made
+        self.recurring_dates = []
+        #list to store the prices of the stocks on the recurring dates
+        self.recurring_prices = []
         
         #gets price of stock on the start and end dates
         self.init_stock_price = self.stock_price_locator(stock_name, start_date)
@@ -38,55 +49,102 @@ class Stock:
         self.percentage_gain = round((self.investment_gain / self.cost_basis) * 100, 2)
 
     #returns price of stock on given date
-    def stock_price_locator(self, stock, date):
+    def stock_price_locator(self, date):
         stockPrice = 0.00
         stockDataTable = self.ticker_info.history(start=date)
         stockPrice = float(stockDataTable["Close"][0])
         return stockPrice
     
-    #adds to num_of_stocks and cost_basis attributes
-    def buy_more_stocks(self):
-        
-        #variable changes based on frequency of recurring investments
+    def recurring_investment_finder(self):
         buy_date = copy.deepcopy(self.start_date)
       
         if(self.frequency_of_investments == "monthly"):
             #number of months between start and end dates
-            num_of_recurring_investments = (self.end_date - self.start_date).days // 30
+            self.num_of_recurring_investments = (self.end_date - self.start_date).days // 30
             
             for i in range(num_of_recurring_investments):
                 buy_date = buy_date + timedelta(days=30)
-                recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.cost_basis += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+                new_stock_price = self.stock_price_locator(self.stock_name, buy_date)
+                self.recurring_dates.append(buy_date)
+                self.recurring_costs.append(new_stock_price)
                 
                 
         elif(self.frequency_of_investments == "quarterly"):
-            num_of_recurring_investments = (self.end_date - self.start_date).days // 91
-
+             #number of months between start and end dates
+             self.num_of_recurring_investments = (self.end_date - self.start_date).days // 91
+            
             for i in range(num_of_recurring_investments):
                 buy_date = buy_date + timedelta(days=91)
-                recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.cost_basis += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+                new_stock_price = self.stock_price_locator(self.stock_name, buy_date)
+                self.recurring_dates.append(buy_date)
+                self.recurring_costs.append(new_stock_price)
 
         elif(self.frequency_of_investments == "biyearly"):
-            num_of_recurring_investments = (self.end_date - self.start_date).days // 182
-
+            #number of months between start and end dates
+            self.num_of_recurring_investments = (self.end_date - self.start_date).days // 182
+            
             for i in range(num_of_recurring_investments):
                 buy_date = buy_date + timedelta(days=182)
-                recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.cost_basis += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+                new_stock_price = self.stock_price_locator(self.stock_name, buy_date)
+                self.recurring_dates.append(buy_date)
+                self.recurring_costs.append(new_stock_price)
 
         elif(self.frequency_of_investments == "yearly"):
-            num_of_recurring_investments = (self.end_date - self.start_date).days // 365
+            #number of months between start and end dates
+            self.num_of_recurring_investments = (self.end_date - self.start_date).days // 362
             
             for i in range(num_of_recurring_investments):
                 buy_date = buy_date + timedelta(days=365)
-                recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.cost_basis += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+                new_stock_price = self.stock_price_locator(self.stock_name, buy_date)
+                self.recurring_dates.append(buy_date)
+                self.recurring_costs.append(new_stock_price)
+
+    #adds to num_of_stocks and cost_basis attributes
+    def buy_more_stocks(self):
+      
+      for i in range(self.num_of_recurring_investments):
+          recurring_investment_stocks = self.recurring_investment // self.recurring_prices[i]
+          self.num_of_stocks += recurring_investment_stocks
+          self.cost_basis += round(recurring_investment_stocks * self.recurring_prices[i], 2)
+    
+    
+    def get_dates(self):
+        time_diff = (self.end_date - self.start_date).days
+        first_date = copy.deepcopy(self.start_date)
+        for i in range(time_diff):    
+            first_date_string = str(first_date)
+            self.dates.append(first_date_string)
+            first_date += timedelta(days=1)
+
+    def get_prices(self):
+        for i in range(len(self.dates)):
+            date = dates[i]    
+            price = stock_price_locator(date)
+            self.prices.append(price)
+
+    def get_invested_amounts(self):
+        for i in range(len(self.dates)):
+            if dates[i] in self.recurring_dates:
+                self.price
+             
+
+
+        base_cost = copy.deepcopy(self.cost_basis)
+        if(self.frequency_of_investments == "monthly"):
+            time_diff = (self.end_date - self.start_date).days
+            first_date = copy.deepcopy(self.start_date)
+            
+            for i in range(30):    
+                first_date += timedelta(days=1)
+
+            
+            if 
+            buy_date = buy_date + timedelta(days=30)
+        # Append cost 
+        # Check if date is recurring date
+        # Append cost + reccurring cost
+        # Append cost 
+              
 
 
     def info_print_out(self):
@@ -327,4 +385,6 @@ if __name__ == "__main__":
     apple_stock = Stock("AAPL", 5000, "2020-01-06", "2020-03-01", 0, "none")
     portfolio = Portfolio(disney_stock, apple_stock)
 
-    print(portfolio.info_print_out())
+    disney_stock.get_dates()
+
+    print(disney_stock.dates)
