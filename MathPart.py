@@ -1,8 +1,4 @@
 import yfinance as yf
-import matplotlib.pyplot as plt
-import matplotlib
-import numpy as np
-import io
 from datetime import datetime, date, timedelta
 import copy
 
