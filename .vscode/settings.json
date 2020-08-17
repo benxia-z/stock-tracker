@@ -1,4 +1,3 @@
 {
-    "python.pythonPath": "C:\\Users\\jeffr\\AppData\\Local\\Programs\\Python\\Python38-32\\python.exe",
-    "python.venvPath": "/Users/arjun/Documents/Hacklahoma"
+    "python.pythonPath": "/Users/arjun/Documents/Hacklahoma/.venv/bin/python"
 }
