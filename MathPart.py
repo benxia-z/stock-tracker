@@ -57,7 +57,7 @@ class Stock:
         if self.num_of_stocks <= 0:
             self.can_buy_stock = False
 
-        self.investment_gain = round(self.final_investment_amount - self.final_cost_basis, 2)
+        self.investment_gain = round(self.final_investment_value - self.final_cost_basis, 2)
         self.percentage_gain = round((self.investment_gain / self.final_cost_basis) * 100, 2)
 
     #returns price of stock on given date
