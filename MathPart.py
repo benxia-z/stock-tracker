@@ -125,7 +125,7 @@ class Stock:
     def get_invested_amounts(self):
         for i in range(len(self.dates)):
             if dates[i] in self.recurring_dates:
-                self.price
+                self.invested_amount.append()
              
 
 
