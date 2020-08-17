@@ -152,9 +152,6 @@ class Stock:
                 idx += 1
             #if date was not a recurring investment date, cost basis will not have changed
             self.cost_bases.append(running_cost_basis)
-            
-
-
 
 
     def info_print_out(self):
@@ -179,13 +176,23 @@ class Stock:
 #class aggregates stock objects
 class  Portfolio():
     def __init__(self, *args):
+        self.stocks = []
+        #final cost basis of entire portfolio
         self.tot_cost_basis = 0
         self.start_date = args[0].start_date
         self.end_date = args[0].end_date
         self.tot_recurring_investment = 0
-        self.tot_end_price = 0
+        #value of entire portfolio on the end date
+        self.tot_end_value = 0
         self.tot_gain = 0
+        #stores the values of the portfolio on every day between the start and end date
+        self.values_of_portfolio = []
+        #stores the cost bases on every day between the start and end date
+        self.cost_bases = []
 
+        for stock in args:
+            self.stocks.append(stock)
+        
         for stock in args:
             self.tot_cost_basis += stock.cost_basis
         self.tot_cost_basis = round(self.tot_cost_basis, 2)
@@ -194,12 +201,22 @@ class  Portfolio():
             self.tot_recurring_investment += stock.recurring_investment
         
         for stock in args:
-            self.tot_end_price += stock.final_investment_amount
+            self.tot_end_value += stock.final_investment_amount
 
         for stock in args:
             self.tot_gain += stock.investment_gain
         
         self.tot_percentage_gain = round((self.tot_gain / self.tot_cost_basis) * 100, 2)
+
+    def get_values_and_cost_bases(self):
+        #outer loop iterates over the length of the dates/prices/cost bases list of every stock in the portfolio
+        for i in range(len(self.stocks[0].dates)):
+            #inner loop iterates over every stock in the portfolio
+            for stock in self.stocks:
+                cost_basis += stock.cost_bases[i]
+                value += stock.prices[i]
+            self.cost_bases.append(cost_basis)
+            self.values_of_portfolio.append(value)
     
     def info_print_out(self):
         
@@ -214,7 +231,7 @@ class  Portfolio():
             self.percentage_gain_info = "That's a  %" + str(self.tot_percentage_gain) + " loss !"
         
         return {'Start Info': "The value of your portfolio on " + str(self.start_date) + " was $" + str(self.tot_cost_basis),
-            'Final Info': "The value of your portfolio on " + str(self.end_date) + " was $" + str(self.tot_end_price),
+            'Final Info': "The value of your portfolio on " + str(self.end_date) + " was $" + str(self.tot_end_value),
             'Investment Gain info': self.tot_gain_info,
             'Percentage Gain Info': self.percentage_gain_info}
 
