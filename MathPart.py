@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 import io
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import copy
 
 
@@ -25,6 +25,8 @@ class Stock:
 
         #integer number of stocks you can buy
         self.num_of_stocks = init_amount // self.init_stock_price
+        self.cost_basis = round(self.num_of_stocks * self.init_stock_price, 2)
+        self.final_investment_amount = round(self.num_of_stocks * self.final_stock_price, 2)
         self.buy_more_stocks()
         
         #can buy stocks or not
@@ -32,11 +34,8 @@ class Stock:
         if self.num_of_stocks <= 0:
             self.can_buy_stock = False
 
-        self.init_investment_amount = round(self.num_of_stocks * self.init_stock_price, 2)
-        self.final_investment_amount = round(self.num_of_stocks * self.final_stock_price, 2)
-
-        self.investment_gain = round(self.final_investment_amount - self.init_investment_amount, 2)
-        self.percentage_gain = round((self.investment_gain / self.init_investment_amount) * 100, 2)
+        self.investment_gain = round(self.final_investment_amount - self.cost_basis, 2)
+        self.percentage_gain = round((self.investment_gain / self.cost_basis) * 100, 2)
 
     #returns price of stock on given date
     def stock_price_locator(self, stock, date):
@@ -45,7 +44,7 @@ class Stock:
         stockPrice = float(stockDataTable["Close"][0])
         return stockPrice
     
-    #adds to num_of_stocks and init_investment_amount attributes
+    #adds to num_of_stocks and cost_basis attributes
     def buy_more_stocks(self):
         
         #variable changes based on frequency of recurring investments
@@ -53,41 +52,41 @@ class Stock:
       
         if(self.frequency_of_investments == "monthly"):
             #number of months between start and end dates
-            num_of_recurring_investments = (self.end_date.year - self.start_date.year) * 12 + (self.end_date.month - self.start_date.month)
+            num_of_recurring_investments = (self.end_date - self.start_date).days // 30
             
             for i in range(num_of_recurring_investments):
-                buy_date = buy_date + datetime.timedelta(days=30)
+                buy_date = buy_date + timedelta(days=30)
                 recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
                 self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.init_investment_amount += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+                self.cost_basis += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
                 
                 
         elif(self.frequency_of_investments == "quarterly"):
-            num_of_recurring_investments = (self.end_date.year - self.start_date.year) * 4 + (self.end_date.month - self.start_date.month) // 3
+            num_of_recurring_investments = (self.end_date - self.start_date).days // 91
 
             for i in range(num_of_recurring_investments):
-                buy_date = buy_date + datetime.timedelta(days=91)
+                buy_date = buy_date + timedelta(days=91)
                 recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
                 self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.init_investment_amount += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+                self.cost_basis += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
 
         elif(self.frequency_of_investments == "biyearly"):
-            num_of_recurring_investments = (self.end_date.year - self.start_date.year) * 2 + (self.end_date.month - self.start_date.month) // 6
+            num_of_recurring_investments = (self.end_date - self.start_date).days // 182
 
             for i in range(num_of_recurring_investments):
-                buy_date = buy_date + datetime.timedelta(days=182)
+                buy_date = buy_date + timedelta(days=182)
                 recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
                 self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.init_investment_amount += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+                self.cost_basis += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
 
         elif(self.frequency_of_investments == "yearly"):
-            num_of_recurring_investments = (self.end_date.year - self.start_date.year)
+            num_of_recurring_investments = (self.end_date - self.start_date).days // 365
             
             for i in range(num_of_recurring_investments):
-                buy_date = buy_date + datetime.timedelta(days=365)
+                buy_date = buy_date + timedelta(days=365)
                 recurring_investment_stocks = self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
                 self.num_of_stocks += self.recurring_investment // self.stock_price_locator(self.stock_name, buy_date)
-                self.init_investment_amount += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
+                self.cost_basis += round(recurring_investment_stocks * self.stock_price_locator(self.stock_name, buy_date), 2)
 
 
     def info_print_out(self):
@@ -98,21 +97,21 @@ class Stock:
             self.investment_gain_info = "Your investment lost $" + str(self.investment_gain)
 
         if(self.investment_gain >= 0):
-            self.percentage_gain_info = "That's a  %" + str(self.percentage_gain) + "gain !"
+            self.percentage_gain_info = "That's a  %" + str(self.percentage_gain) + " gain !"
         else:
-            self.percentage_gain_info = "That's a  %" + str(self.percentage_gain) + "loss !"
+            self.percentage_gain_info = "That's a  %" + str(self.percentage_gain) + " loss !"
         
-        return {'Start Info': "The value of " + self.stock_name + " on " + self.start_date + " was $" + str(self.init_stock_price),
-         'Buy Info': "You were able to buy " + str(self.num_of_stocks) + " shares at $" + str(self.init_investment_amount),
-         'Final Info': "The value of " + self.stock_name + " on " + self.end_date + " was $" + str(self.final_stock_price),
-         'End Investment Info': "The value of your investment on " + self.end_date + " was worth $" + str(self.final_investment_amount),
+        return {'Start Info': "The value of " + self.stock_name + " on " + str(self.start_date) + " was $" + str(self.init_stock_price),
+         'Buy Info': "You were able to buy " + str(self.num_of_stocks) + " shares at $" + str(self.cost_basis),
+         'Final Info': "The value of " + self.stock_name + " on " + str(self.end_date) + " was $" + str(self.final_stock_price),
+         'End Investment Info': "The value of your investment on " + str(self.end_date) + " was worth $" + str(self.final_investment_amount),
          'Investment Gain info': self.investment_gain_info,
          'Percentage Gain Info': self.percentage_gain_info}
 
 #class aggregates stock objects
 class  Portfolio():
     def __init__(self, *args):
-        self.tot_init_amount = 0
+        self.tot_cost_basis = 0
         self.start_date = args[0].start_date
         self.end_date = args[0].end_date
         self.tot_recurring_investment = 0
@@ -120,20 +119,21 @@ class  Portfolio():
         self.tot_gain = 0
 
         for stock in args:
-            self.total_init_amount += stock.init_investment_amount
+            self.tot_cost_basis += stock.cost_basis
+        self.tot_cost_basis = round(self.tot_cost_basis, 2)
         
         for stock in args:
             self.tot_recurring_investment += stock.recurring_investment
         
         for stock in args:
-            self.tot_end_price += stock.final_investment_price
+            self.tot_end_price += stock.final_investment_amount
 
         for stock in args:
             self.tot_gain += stock.investment_gain
         
-        self.tot_percentage_gain = round((self.tot_investment_gain / self.tot_init_amount) * 100, 2)
+        self.tot_percentage_gain = round((self.tot_gain / self.tot_cost_basis) * 100, 2)
     
-    def __str__(self):
+    def info_print_out(self):
         
         if(self.tot_gain >= 0):
             self.tot_gain_info = "Your portfolio gained $" + str(self.tot_gain)
@@ -141,15 +141,16 @@ class  Portfolio():
             self.tot_gain_info = "Your portfolio lost $" + str(self.tot_gain)
 
         if(self.tot_percentage_gain >= 0):
-            self.percentage_gain_info = "That's a  %" + str(self.tot_percentage_gain) + "gain !"
+            self.percentage_gain_info = "That's a  %" + str(self.tot_percentage_gain) + " gain !"
         else:
-            self.percentage_gain_info = "That's a  %" + str(self.tot_percentage_gain) + "loss !"
+            self.percentage_gain_info = "That's a  %" + str(self.tot_percentage_gain) + " loss !"
         
-        return {'Start Info': "The value of your portfolio on " + self.start_date + " was $" + str(self.tot_init_amount),
-            'Final Info': "The value of your portfolio on" + self.end_date + " was $" + str(self.tot_end_price),
+        return {'Start Info': "The value of your portfolio on " + str(self.start_date) + " was $" + str(self.tot_cost_basis),
+            'Final Info': "The value of your portfolio on " + str(self.end_date) + " was $" + str(self.tot_end_price),
             'Investment Gain info': self.tot_gain_info,
             'Percentage Gain Info': self.percentage_gain_info}
-    
+
+
 
 '''
 class StockPlotter:
@@ -322,5 +323,8 @@ def isStockReal(stock):
 
 
 if __name__ == "__main__":
-    disney_stock = Stock("DIS", 5000, "2020-01-01", "2020-03-01", 0, "none")
-    print(disney_stock.init_amount)
+    disney_stock = Stock("DIS", 5000, "2020-01-06", "2020-03-01", 0, "none")
+    apple_stock = Stock("AAPL", 5000, "2020-01-06", "2020-03-01", 0, "none")
+    portfolio = Portfolio(disney_stock, apple_stock)
+
+    print(portfolio.info_print_out())
