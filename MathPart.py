@@ -14,6 +14,9 @@ class Stock:
         #cost basis is the amount the user has actually paid for stocks
         self.init_cost_basis = 0
         self.final_cost_basis = 0
+
+        self.init_num_stocks = 0
+        self.final_num_stocks = 0
         #iso format is "YYYY-MM-DD"
         self.start_date = date.fromisoformat(start_date)
         self.end_date = date.fromisoformat(end_date)
@@ -47,15 +50,16 @@ class Stock:
         self.final_stock_price = self.stock_price_locator(end_date)
 
         #integer number of stocks you can buy
-        self.num_of_stocks = init_amount // self.init_stock_price
-        self.init_cost_basis = round(self.num_of_stocks * self.init_stock_price, 2)
+        self.init_num_stocks = init_amount // self.init_stock_price
+        self.final_num_stocks = copy.deepcopy(self.init_num_stocks)
+        self.init_cost_basis = round(self.init_num_stocks * self.init_stock_price, 2)
         self.final_cost_basis = copy.deepcopy(self.init_cost_basis)
-        self.final_investment_value = round(self.num_of_stocks * self.final_stock_price, 2)
         self.buy_more_stocks()
+        self.final_investment_value = round(self.final_num_stocks * self.final_stock_price, 2)
         
         #can buy stocks or not
         self.can_buy_stock = True
-        if self.num_of_stocks <= 0:
+        if self.init_num_stocks <= 0:
             self.can_buy_stock = False
 
         self.investment_gain = round(self.final_investment_value - self.final_cost_basis, 2)
@@ -122,7 +126,7 @@ class Stock:
             #num of stocks user can buy with recurring investment amount
             recurring_investment_stocks = self.recurring_investment // self.recurring_prices[i]
             self.num_stocks_purchased.append(recurring_investment_stocks)
-            self.num_of_stocks += recurring_investment_stocks
+            self.final_num_stocks += recurring_investment_stocks
             #amount user has paid for recurring investment
             recurring_investment_price = round(recurring_investment_stocks * self.recurring_prices[i], 2)
             self.additions_to_cost_basis.append(recurring_investment_price)
@@ -150,16 +154,16 @@ class Stock:
     def get_invested_amounts(self):
         idx = 0
         running_cost_basis = copy.deepcopy(self.init_cost_basis)
-        running_stocks = copy.deepcopy(self.init)
+        running_stocks = copy.deepcopy(self.init_num_stocks)
         for i in range(len(self.dates)):
             #checks if date is a recurring investment date
             if self.dates[i] in self.recurring_dates:
                 running_cost_basis += self.additions_to_cost_basis[idx]
-                
+                running_stocks += self.num_stocks_purchased[i]
                 idx += 1
             #if date was not a recurring investment date, cost basis will not have changed
             self.cost_bases.append(round(running_cost_basis, 2))
-
+            self.investment_values.append(round(running_stocks * self.prices[i], 2))
     
     def graph(self):
         
@@ -192,7 +196,7 @@ class Stock:
             self.percentage_gain_info = "That's a  %" + str(self.percentage_gain) + " loss !"
         
         return {'Start Info': "The value of " + self.stock_name + " on " + str(self.start_date) + " was $" + str(self.init_stock_price),
-         'Buy Info': "You were able to buy " + str(self.num_of_stocks) + " shares at $" + str(self.final_cost_basis),
+         'Buy Info': "You were able to buy " + str(self.init_num_stocks) + " shares at $" + str(self.final_cost_basis),
          'Final Info': "The value of " + self.stock_name + " on " + str(self.end_date) + " was $" + str(self.final_stock_price),
          'End Investment Info': "The value of your investment on " + str(self.end_date) + " was worth $" + str(self.final_investment_value),
          'Investment Gain info': self.investment_gain_info,
@@ -282,7 +286,7 @@ if __name__ == "__main__":
     apple_stock = Stock("AAPL", 5000, "2020-01-01", "2020-02-05", 500, "monthly")
     portfolio = Portfolio(disney_stock, apple_stock)
 
-
+    '''
     disney_stock.get_dates()
     disney_stock.get_prices()
     disney_stock.get_invested_amounts()
@@ -294,9 +298,9 @@ if __name__ == "__main__":
     portfolio.get_values_and_cost_bases()
 
     print(portfolio.cost_bases)
-
     '''
+    
     disney_stock.graph()
     apple_stock.graph()
     portfolio.graph()
-    '''
+    
