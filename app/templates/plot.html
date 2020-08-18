@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="text-center">Plotly chart</h1>
+  
+  <div class="container">
+    <div id="chart" class="chart text-center" style="width:600px;height:250px;">
+        {{ figdiv | safe }}
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script> 
+
+
+    <script type="text/javascript">
+        $('chart').html(```{{ figdiv | safe }}```);
+        /*var graphs = {{ figJSON | safe }};
+        console.log(graphs);
+        Plotly.newPlot('chart', graphs); */
+
+
+        /*Plotly.newPlot('chart', [{
+            x: [1, 2, 3, 4, 5],
+            y: [1, 2, 4, 8, 16] }], {
+            margin: { t: 0 } } ); */
+    </script> -->
+    
+{% endblock %}
