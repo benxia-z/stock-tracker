@@ -14,7 +14,7 @@ class Stock:
         #cost basis is the amount the user has actually paid for stocks
         self.init_cost_basis = 0
         self.final_cost_basis = 0
-
+        #num of stocks user has on the start and end date
         self.init_num_stocks = 0
         self.final_num_stocks = 0
         #iso format is "YYYY-MM-DD"
@@ -49,12 +49,16 @@ class Stock:
         self.init_stock_price = self.stock_price_locator(start_date)
         self.final_stock_price = self.stock_price_locator(end_date)
 
-        #integer number of stocks you can buy
+        #integer number of stocks you can buy on start date
         self.init_num_stocks = init_amount // self.init_stock_price
+        #if there are recurring investments, this variable is updated in the buy_more_stocks method
         self.final_num_stocks = copy.deepcopy(self.init_num_stocks)
+        #amount of money user was actually able to invest on the start date
         self.init_cost_basis = round(self.init_num_stocks * self.init_stock_price, 2)
+        #if there are recurring investments, this variable is updated in the buy_more_stocks method
         self.final_cost_basis = copy.deepcopy(self.init_cost_basis)
         self.buy_more_stocks()
+        #value of investments on the end date
         self.final_investment_value = round(self.final_num_stocks * self.final_stock_price, 2)
         
         #can buy stocks or not
@@ -149,8 +153,8 @@ class Stock:
             price = self.stock_price_locator(date)
             self.prices.append(price)
 
-    #fills cost_bases list
-    #will result in a "stair-step" looking trace
+    #fills cost_bases list, which will be a "stair-step" looking trace
+    #also fills investment_values list, which represents the total value of the investment on every day between the start and end date
     def get_invested_amounts(self):
         idx = 0
         running_cost_basis = copy.deepcopy(self.init_cost_basis)
@@ -165,20 +169,32 @@ class Stock:
             self.cost_bases.append(round(running_cost_basis, 2))
             self.investment_values.append(round(running_stocks * self.prices[i], 2))
     
-    def graph(self):
+    
+    def graph_bases_vs_value(self):
         
         self.get_dates()
-        self.get_prices()
         self.get_invested_amounts()
         
         
         fig = go.Figure(
 
-        data=[go.Scatter(x=self.dates, y=self.prices, line_color="crimson")],
+        data=[go.Scatter(x=self.dates, y=self.investment_values, line_color="crimson")],
         layout_title_text=self.stock_name
         )
 
         fig.add_trace(go.Scatter(x=self.dates, y=self.cost_bases))
+
+        fig.show()
+
+    def graph_stock_prices(self):
+        self.get_dates()
+        self.get_prices()
+
+        fig = go.Figure(
+
+        data=[go.Scatter(x=self.dates, y=self.prices, line_color="crimson")],
+        layout_title_text=self.stock_name
+        )
 
         fig.show()
 
@@ -299,8 +315,4 @@ if __name__ == "__main__":
 
     print(portfolio.cost_bases)
     '''
-    
-    disney_stock.graph()
-    apple_stock.graph()
-    portfolio.graph()
     
