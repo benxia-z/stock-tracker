@@ -1,3 +1,4 @@
+import plotly.graph_objects as go
 import yfinance as yf
 from datetime import datetime, date, timedelta
 import copy
@@ -28,6 +29,10 @@ class Stock:
         self.dates = []
         #list to store all prices of the stock between the start and end date
         self.prices = []
+        #list to store how many stocks user has purchased for each day between the start and end date
+        self.num_stocks_purchased = []
+        #list to store the total value of your investment for each day between the start and end date
+        self.investment_values = []
         #list to store how much user has invested in stock for all days in the date list
         self.cost_bases = []
         #list to store the dates recurring investments are made
@@ -74,7 +79,7 @@ class Stock:
             for i in range(self.num_of_recurring_investments):
                 buy_date = buy_date + timedelta(days=30)
                 new_stock_price = self.stock_price_locator(buy_date)
-                self.recurring_dates.append(buy_date)
+                self.recurring_dates.append(str(buy_date))
                 self.recurring_prices.append(new_stock_price)
                 
                 
@@ -85,7 +90,7 @@ class Stock:
             for i in range(self.num_of_recurring_investments):
                 buy_date = buy_date + timedelta(days=91)
                 new_stock_price = self.stock_price_locator(buy_date)
-                self.recurring_dates.append(buy_date)
+                self.recurring_dates.append(str(buy_date))
                 self.recurring_prices.append(new_stock_price)
 
         elif(self.frequency_of_investments == "biyearly"):
@@ -95,7 +100,7 @@ class Stock:
             for i in range(self.num_of_recurring_investments):
                 buy_date = buy_date + timedelta(days=182)
                 new_stock_price = self.stock_price_locator(buy_date)
-                self.recurring_dates.append(buy_date)
+                self.recurring_dates.append(str(buy_date))
                 self.recurring_prices.append(new_stock_price)
 
         elif(self.frequency_of_investments == "yearly"):
@@ -105,20 +110,24 @@ class Stock:
             for i in range(self.num_of_recurring_investments):
                 buy_date = buy_date + timedelta(days=365)
                 new_stock_price = self.stock_price_locator(buy_date)
-                self.recurring_dates.append(buy_date)
+                self.recurring_dates.append(str(buy_date))
                 self.recurring_prices.append(new_stock_price)
 
     #adds to num_of_stocks and cost_basis attributes
     def buy_more_stocks(self):
 
+        self.recurring_dates_and_prices_finder()
+
         for i in range(self.num_of_recurring_investments):
             #num of stocks user can buy with recurring investment amount
             recurring_investment_stocks = self.recurring_investment // self.recurring_prices[i]
+            self.num_stocks_purchased.append(recurring_investment_stocks)
             self.num_of_stocks += recurring_investment_stocks
             #amount user has paid for recurring investment
             recurring_investment_price = round(recurring_investment_stocks * self.recurring_prices[i], 2)
             self.additions_to_cost_basis.append(recurring_investment_price)
             self.final_cost_basis += recurring_investment_price
+        self.final_cost_basis = round(self.final_cost_basis, 2)
     
     #fills dates list
     def get_dates(self):
@@ -141,13 +150,33 @@ class Stock:
     def get_invested_amounts(self):
         idx = 0
         running_cost_basis = copy.deepcopy(self.init_cost_basis)
+        running_stocks = copy.deepcopy(self.init)
         for i in range(len(self.dates)):
             #checks if date is a recurring investment date
             if self.dates[i] in self.recurring_dates:
                 running_cost_basis += self.additions_to_cost_basis[idx]
+                
                 idx += 1
             #if date was not a recurring investment date, cost basis will not have changed
-            self.cost_bases.append(running_cost_basis)
+            self.cost_bases.append(round(running_cost_basis, 2))
+
+    
+    def graph(self):
+        
+        self.get_dates()
+        self.get_prices()
+        self.get_invested_amounts()
+        
+        
+        fig = go.Figure(
+
+        data=[go.Scatter(x=self.dates, y=self.prices, line_color="crimson")],
+        layout_title_text=self.stock_name
+        )
+
+        fig.add_trace(go.Scatter(x=self.dates, y=self.cost_bases))
+
+        fig.show()
 
 
     def info_print_out(self):
@@ -190,14 +219,14 @@ class  Portfolio():
             self.stocks.append(stock)
         
         for stock in args:
-            self.tot_cost_basis += stock.cost_basis
+            self.tot_cost_basis += stock.final_cost_basis
         self.tot_cost_basis = round(self.tot_cost_basis, 2)
         
         for stock in args:
             self.tot_recurring_investment += stock.recurring_investment
         
         for stock in args:
-            self.tot_end_value += stock.final_investment_amount
+            self.tot_end_value += stock.final_investment_value
 
         for stock in args:
             self.tot_gain += stock.investment_gain
@@ -208,12 +237,28 @@ class  Portfolio():
         #outer loop iterates over the length of the dates/prices/cost bases list of every stock in the portfolio
         for i in range(len(self.stocks[0].dates)):
             #inner loop iterates over every stock in the portfolio
+            cost_basis = 0
+            value = 0
             for stock in self.stocks:
                 cost_basis += stock.cost_bases[i]
                 value += stock.prices[i]
             self.cost_bases.append(cost_basis)
             self.values_of_portfolio.append(value)
     
+    def graph(self):
+        
+        self.get_values_and_cost_bases()
+        
+        fig = go.Figure(
+
+        data=[go.Scatter(x=self.stocks[0].dates, y=self.values_of_portfolio, line_color="mediumturquoise")],
+        layout_title_text="Portfolio"
+        )
+
+        fig.add_trace(go.Scatter(x=self.stocks[0].dates, y=self.cost_bases))
+    
+        fig.show() 
+
     def info_print_out(self):
         
         if(self.tot_gain >= 0):
@@ -226,188 +271,32 @@ class  Portfolio():
         else:
             self.percentage_gain_info = "That's a  %" + str(self.tot_percentage_gain) + " loss !"
         
-        return {'Start Info': "The value of your portfolio on " + str(self.start_date) + " was $" + str(self.tot_cost_basis),
+        return {'Start Info': "The cost basis of your portfolio on " + str(self.end_date) + " was $" + str(self.tot_cost_basis),
             'Final Info': "The value of your portfolio on " + str(self.end_date) + " was $" + str(self.tot_end_value),
             'Investment Gain info': self.tot_gain_info,
             'Percentage Gain Info': self.percentage_gain_info}
 
 
-
-'''
-class StockPlotter:
-
-    def __init__(self, *args):
-        
-        matplotlib.use('agg')
-        fig, ax = plt.subplots()
-        graph_title = ""
-        date_list = []
-        first_stock_data_table = args[0].ticker_info.history(start = args[0].start_date, end = args[0].end_date)
-
-        for row in first_stock_data_table.itertuples():
-            date_string = row.Index.strftime("%Y-%m-%d")
-            date_list.append(date_string)
-        
-        date_list_size = len(date_list)
-
-        for stock in args:
-            
-            stock_ticker = stock.ticker_info
-            price_list = []
-            stock_data_table = stock_ticker.history(start = stock.start_date, end = stock.end_date)
-
-            for row in stock_data_table.itertuples():
-                price_list.append(row.Close)
-            
-            
-
-            plt.plot(date_list, price_list, label = stock.stock_name)
-            graph_title += stock.stock_name + ", "
-
-        
-        plt.legend(loc = 'upper left')
-
-        #Is there a way to improve on this code so it's not a bunch of if-else statements?
-        #The goal is for PyPlot to be able to display
-
-        if(date_list_size < 15):
-            ax.set_xticks(date_list[::1])
-            ax.set_xticklabels(date_list[::1], rotation=90)
-        elif(date_list_size < 45):
-            ax.set_xticks(date_list[::3])
-            ax.set_xticklabels(date_list[::3], rotation=90)
-        elif(date_list_size < 90):
-            ax.set_xticks(date_list[::6])
-            ax.set_xticklabels(date_list[::6], rotation=90)
-        elif (date_list_size < 180):
-            ax.set_xticks(date_list[::12])
-            ax.set_xticklabels(date_list[::12], rotation=90)
-        elif (date_list_size < 1825):
-            ax.set_xticks(date_list[::60])
-            ax.set_xticklabels(date_list[::60], rotation=90)
-        elif (date_list_size < 3650):
-            ax.set_xticks(date_list[::180])
-            ax.set_xticklabels(date_list[::180], rotation=90)
-        else:
-            ax.set_xticks(date_list[::365])
-            ax.set_xticklabels(date_list[::365], rotation=90)
-        #print (date_list)
-        #print (priceList)
-
-        plt.xlabel('Date', fontsize = 12)
-        #plt.xticks(rotation = 90)
-        plt.ylabel('Price ($)', fontsize = 12)
-        plt.gcf().subplots_adjust(bottom=0.25)
-        # plt.show()
-        self.bytes_image = io.BytesIO()
-        plt.savefig(self.bytes_image, format='png')
-        self.bytes_image.seek(0)
-    
-    def graph_return(self):
-        return self.bytes_image
-
-'''
-        
-
-        
-'''
-def stockPlotter(firstStockProg, secondStockProg, thirdStockProg, startDate2, endDate2): #Implement multiple names (name1, name2 and name3?)
-    stockName1 = yf.Ticker(firstStockProg)
-    stockName2 = yf.Ticker(secondStockProg)
-    stockName3 = yf.Ticker(thirdStockProg)
-    date_list = []
-    date_list2 = []
-    date_list3 = []
-    dateNumbersList = []
-    priceList = []
-    priceList2 = []
-    priceList3 = []
-    xTicks = []
-    yTicks = []
-    date_list_size = 0
-    stockDataTable1 = stockName1.history(start = startDate2, end = endDate2)
-    stockDataTable2 = stockName2.history(start = startDate2, end = endDate2)
-    stockDataTable3 = stockName3.history(start = startDate2, end = endDate2)
-
-    for row in stockDataTable1.itertuples():
-        dateString = row.Index.strftime("%Y-%m-%d")
-        date_list.append(dateString)
-        priceList.append(row.Close)
-
-    for row in stockDataTable2.itertuples():
-        dateString = row.Index.strftime("%Y-%m-%d")
-        date_list2.append(dateString)
-        priceList2.append(row.Close)
-
-    for row in stockDataTable3.itertuples():
-        dateString = row.Index.strftime("%Y-%m-%d")
-        date_list3.append(dateString)
-        priceList3.append(row.Close)
-
-    date_list_size = len(date_list)
-
-    fig, ax = plt.subplots()
-    plt.plot(date_list, priceList, label = firstStockProg)
-    plt.plot(date_list2, priceList2, label = secondStockProg)
-    plt.plot(date_list3, priceList3, label = thirdStockProg)
-    plt.title(firstStockProg + ", " + secondStockProg + ", and " + thirdStockProg + " Performance", fontsize = 20)
-    plt.legend(loc = 'upper left')
-
-    #Is there a way to improve on this code so it's not a bunch of if-else statements?
-    #The goal is for PyPlot to be able to display
-
-    if(date_list_size < 15):
-        ax.set_xticks(date_list[::1])
-        ax.set_xticklabels(date_list[::1], rotation=90)
-    elif(date_list_size < 45):
-        ax.set_xticks(date_list[::3])
-        ax.set_xticklabels(date_list[::3], rotation=90)
-    elif(date_list_size < 90):
-        ax.set_xticks(date_list[::6])
-        ax.set_xticklabels(date_list[::6], rotation=90)
-    elif (date_list_size < 180):
-        ax.set_xticks(date_list[::12])
-        ax.set_xticklabels(date_list[::12], rotation=90)
-    elif (date_list_size < 1825):
-        ax.set_xticks(date_list[::60])
-        ax.set_xticklabels(date_list[::60], rotation=90)
-    elif (date_list_size < 3650):
-        ax.set_xticks(date_list[::180])
-        ax.set_xticklabels(date_list[::180], rotation=90)
-    else:
-        ax.set_xticks(date_list[::365])
-        ax.set_xticklabels(date_list[::365], rotation=90)
-
-    #print (date_list)
-    #print (priceList)
-
-    plt.xlabel('Date', fontsize = 12)
-    #plt.xticks(rotation = 90)
-    plt.ylabel('Price ($)', fontsize = 12)
-    plt.gcf().subplots_adjust(bottom=0.25)
-    plt.show()
-    bytes_image = io.BytesIO()
-    plt.savefig(bytes_image, format='png')
-    bytes_image.seek(0)
-    return bytes_image
-
-
-def isStockReal(stock):
-    stockName = yf.Ticker(stock)
-    stockDataTable = stockName.history(start = "2020-02-07")
-    if not(stockDataTable.empty):
-        return True
-    else:
-        return False
-
-'''
-
-
 if __name__ == "__main__":
-    disney_stock = Stock("DIS", 5000, "2020-01-06", "2020-03-01", 0, "none")
-    apple_stock = Stock("AAPL", 5000, "2020-01-06", "2020-03-01", 0, "none")
+    disney_stock = Stock("DIS", 5000, "2020-01-01", "2020-02-05", 200, "monthly")
+    apple_stock = Stock("AAPL", 5000, "2020-01-01", "2020-02-05", 500, "monthly")
     portfolio = Portfolio(disney_stock, apple_stock)
 
-    disney_stock.get_dates()
 
-    print(disney_stock.dates)
+    disney_stock.get_dates()
+    disney_stock.get_prices()
+    disney_stock.get_invested_amounts()
+
+    apple_stock.get_dates()
+    apple_stock.get_prices()
+    apple_stock.get_invested_amounts()
+
+    portfolio.get_values_and_cost_bases()
+
+    print(portfolio.cost_bases)
+
+    '''
+    disney_stock.graph()
+    apple_stock.graph()
+    portfolio.graph()
+    '''
