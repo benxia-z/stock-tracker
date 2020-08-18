@@ -28,8 +28,6 @@ class Stock:
         self.frequency_of_investments = frequency_of_investments
         #how many of those periods occur between the start and end date
         self.num_of_recurring_investments = 0
-        #list to store all dates between start and end dates
-        self.dates = []
         #list to store all prices of the stock between the start and end date
         self.prices = []
         #list to store how many stocks user has purchased for each day between the start and end date
@@ -139,29 +137,31 @@ class Stock:
     
     #fills dates list
     def get_dates(self):
+        dates = []
         time_diff = (self.end_date - self.start_date).days
         first_date = copy.deepcopy(self.start_date)
         for i in range(time_diff):    
             first_date_string = str(first_date)
-            self.dates.append(first_date_string)
+            dates.append(first_date_string)
             first_date += timedelta(days=1)
+        return dates
 
     #fills prices list
-    def get_prices(self):
-        for i in range(len(self.dates)):
-            date = self.dates[i]    
+    def get_prices(self, dates):
+        for i in range(dates):
+            date = dates[i]    
             price = self.stock_price_locator(date)
             self.prices.append(price)
 
     #fills cost_bases list, which will be a "stair-step" looking trace
     #also fills investment_values list, which represents the total value of the investment on every day between the start and end date
-    def get_invested_amounts(self):
+    def get_invested_amounts(self, dates):
         idx = 0
         running_cost_basis = copy.deepcopy(self.init_cost_basis)
         running_stocks = copy.deepcopy(self.init_num_stocks)
-        for i in range(len(self.dates)):
+        for i in range(len(dates)):
             #checks if date is a recurring investment date
-            if self.dates[i] in self.recurring_dates:
+            if dates[i] in self.recurring_dates:
                 running_cost_basis += self.additions_to_cost_basis[idx]
                 running_stocks += self.num_stocks_purchased[i]
                 idx += 1
@@ -170,29 +170,38 @@ class Stock:
             self.investment_values.append(round(running_stocks * self.prices[i], 2))
     
     
-    def graph_bases_vs_value(self):
+    def graph_bases_vs_value(self, **kwargs):
         
-        self.get_dates()
-        self.get_invested_amounts()
+        dates = kwargs.get("dates", None)
+
+        if not dates:
+            dates = self.get_dates()
+
+        self.get_invested_amounts(dates)
         
         
         fig = go.Figure(
 
-        data=[go.Scatter(x=self.dates, y=self.investment_values, line_color="crimson")],
+        data=[go.Scatter(x=dates, y=self.investment_values, line_color="crimson")],
         layout_title_text=self.stock_name
         )
 
-        fig.add_trace(go.Scatter(x=self.dates, y=self.cost_bases))
+        fig.add_trace(go.Scatter(x=dates, y=self.cost_bases))
 
         fig.show()
 
-    def graph_stock_prices(self):
-        self.get_dates()
-        self.get_prices()
+    def graph_stock_prices(self, **kwargs):
+        
+        dates = kwargs.get("dates", None)
+        
+        if not dates:
+            dates = self.get_dates()
+
+        self.get_prices(dates)
 
         fig = go.Figure(
 
-        data=[go.Scatter(x=self.dates, y=self.prices, line_color="crimson")],
+        data=[go.Scatter(x=dates, y=self.prices, line_color="crimson")],
         layout_title_text=self.stock_name
         )
 
@@ -255,7 +264,7 @@ class  Portfolio():
 
     def get_values_and_cost_bases(self):
         #outer loop iterates over the length of the dates/prices/cost bases list of every stock in the portfolio
-        for i in range(len(self.stocks[0].dates)):
+        for i in range(len(self.stocks[0].get_dates())):
             #inner loop iterates over every stock in the portfolio
             cost_basis = 0
             value = 0
@@ -271,7 +280,7 @@ class  Portfolio():
         
         fig = go.Figure(
 
-        data=[go.Scatter(x=self.stocks[0].dates, y=self.values_of_portfolio, line_color="mediumturquoise")],
+        data=[go.Scatter(x=self.stocks[0].get_dates(), y=self.values_of_portfolio, line_color="mediumturquoise")],
         layout_title_text="Portfolio"
         )
 
