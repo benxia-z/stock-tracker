@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired
 
 
 class StockForm(FlaskForm):
-    stock = StringField('Stock', validators=[DataRequired()])
+    stock_name = StringField('Stock', validators=[DataRequired()])
     init_invest = DecimalField('Initial Investment', validators=[DataRequired()])
     start_date = DateField('Start Date', validators=[DataRequired()])
     end_date = DateField('End Date', validators=[DataRequired()])

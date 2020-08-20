@@ -148,7 +148,7 @@ class Stock:
 
     #fills prices list
     def get_prices(self, dates):
-        for i in range(dates):
+        for i in range(len(dates)):
             date = dates[i]    
             price = self.stock_price_locator(date)
             self.prices.append(price)
@@ -163,16 +163,14 @@ class Stock:
             #checks if date is a recurring investment date
             if dates[i] in self.recurring_dates:
                 running_cost_basis += self.additions_to_cost_basis[idx]
-                running_stocks += self.num_stocks_purchased[i]
+                running_stocks += self.num_stocks_purchased[idx]
                 idx += 1
             #if date was not a recurring investment date, cost basis will not have changed
             self.cost_bases.append(round(running_cost_basis, 2))
             self.investment_values.append(round(running_stocks * self.prices[i], 2))
     
     
-    def graph_bases_vs_value(self, **kwargs):
-        
-        dates = kwargs.get("dates", None)
+    def graph_bases_vs_value(self, dates=None):
 
         if not dates:
             dates = self.get_dates()
@@ -182,17 +180,15 @@ class Stock:
         
         fig = go.Figure(
 
-        data=[go.Scatter(x=dates, y=self.investment_values, line_color="crimson")],
-        layout_title_text=self.stock_name
+        data=[go.Scatter(x=dates, y=self.investment_values, line_color="crimson", name="Total Investment Value")],
+        layout_title_text= self.stock_name + " Total Investment Value vs. Cost Basis"
         )
 
-        fig.add_trace(go.Scatter(x=dates, y=self.cost_bases))
+        fig.add_trace(go.Scatter(x=dates, y=self.cost_bases, name="Cost Basis"))
 
-        fig.show()
-
-    def graph_stock_prices(self, **kwargs):
-        
-        dates = kwargs.get("dates", None)
+        return fig
+#
+    def graph_stock_prices(self, dates=None):
         
         if not dates:
             dates = self.get_dates()
@@ -201,11 +197,11 @@ class Stock:
 
         fig = go.Figure(
 
-        data=[go.Scatter(x=dates, y=self.prices, line_color="crimson")],
-        layout_title_text=self.stock_name
+        data=[go.Scatter(x=dates, y=self.prices, line_color="crimson", name='Stock Price')],
+        layout_title_text=self.stock_name + " Daily Stock Price"
         )
 
-        fig.show()
+        return fig
 
 
     def info_print_out(self):
@@ -270,7 +266,7 @@ class  Portfolio():
             value = 0
             for stock in self.stocks:
                 cost_basis += stock.cost_bases[i]
-                value += stock.prices[i]
+                value += stock.investment_values[i]
             self.cost_bases.append(cost_basis)
             self.values_of_portfolio.append(value)
     
@@ -280,13 +276,13 @@ class  Portfolio():
         
         fig = go.Figure(
 
-        data=[go.Scatter(x=self.stocks[0].get_dates(), y=self.values_of_portfolio, line_color="mediumturquoise")],
-        layout_title_text="Portfolio"
+        data=[go.Scatter(x=self.stocks[0].get_dates(), y=self.values_of_portfolio, line_color="mediumturquoise", name="Total Portfolio Value")],
+        layout_title_text="Portfolio Total Investment Value vs. Cost Basis" 
         )
 
-        fig.add_trace(go.Scatter(x=self.stocks[0].dates, y=self.cost_bases))
+        fig.add_trace(go.Scatter(x=self.stocks[0].get_dates(), y=self.cost_bases, name="Total Portfolio Cost Basis"))
     
-        fig.show() 
+        return fig
 
     def info_print_out(self):
         
@@ -306,22 +302,30 @@ class  Portfolio():
             'Percentage Gain Info': self.percentage_gain_info}
 
 
+def check_valid_stock(stock):
+    try:
+        yf.Ticker(stock).info
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
 if __name__ == "__main__":
     disney_stock = Stock("DIS", 5000, "2020-01-01", "2020-02-05", 200, "monthly")
     apple_stock = Stock("AAPL", 5000, "2020-01-01", "2020-02-05", 500, "monthly")
     portfolio = Portfolio(disney_stock, apple_stock)
 
-    '''
-    disney_stock.get_dates()
-    disney_stock.get_prices()
-    disney_stock.get_invested_amounts()
+    dates = disney_stock.get_dates()
+    
+    disney_stock.get_prices(dates)
+    disney_stock.get_invested_amounts(dates)
 
-    apple_stock.get_dates()
-    apple_stock.get_prices()
-    apple_stock.get_invested_amounts()
+    apple_stock.get_prices(dates)
+    apple_stock.get_invested_amounts(dates)
 
-    portfolio.get_values_and_cost_bases()
+    apple_stock.graph_bases_vs_value(dates)
+    apple_stock.graph_stock_prices(dates)
 
-    print(portfolio.cost_bases)
-    '''
+    #portfolio.graph()
+
     
