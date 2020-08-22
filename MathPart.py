@@ -1,8 +1,8 @@
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import yfinance as yf
 from datetime import datetime, date, timedelta
 import copy
-
 
 #class represents stock object with an initial investment amount and start and end dates of investment
 class Stock:
@@ -148,14 +148,17 @@ class Stock:
 
     #fills prices list
     def get_prices(self, dates):
+        prices = []
         for i in range(len(dates)):
             date = dates[i]    
             price = self.stock_price_locator(date)
-            self.prices.append(price)
+            prices.append(price)
+        return prices
 
     #fills cost_bases list, which will be a "stair-step" looking trace
     #also fills investment_values list, which represents the total value of the investment on every day between the start and end date
     def get_invested_amounts(self, dates):
+        prices_list = self.get_prices(dates)
         idx = 0
         running_cost_basis = copy.deepcopy(self.init_cost_basis)
         running_stocks = copy.deepcopy(self.init_num_stocks)
@@ -167,27 +170,21 @@ class Stock:
                 idx += 1
             #if date was not a recurring investment date, cost basis will not have changed
             self.cost_bases.append(round(running_cost_basis, 2))
-            self.investment_values.append(round(running_stocks * self.prices[i], 2))
-    
-    
+            self.investment_values.append(round(running_stocks * prices_list[i], 2))
+    '''
     def graph_bases_vs_value(self, dates=None):
 
         if not dates:
             dates = self.get_dates()
 
         self.get_invested_amounts(dates)
-        
-        
-        fig = go.Figure(
 
-        data=[go.Scatter(x=dates, y=self.investment_values, line_color="crimson", name="Total Investment Value")],
-        layout_title_text= self.stock_name + " Total Investment Value vs. Cost Basis"
-        )
+        data=[go.Scatter(x=dates, y=self.investment_values, line_color="crimson", name="Total Investment Value")]
 
         fig.add_trace(go.Scatter(x=dates, y=self.cost_bases, name="Cost Basis"))
 
         return fig
-#
+
     def graph_stock_prices(self, dates=None):
         
         if not dates:
@@ -202,7 +199,7 @@ class Stock:
         )
 
         return fig
-
+'''
 
     def info_print_out(self):
         
@@ -243,6 +240,8 @@ class  Portfolio():
         for stock in args:
             self.stocks.append(stock)
         
+        self.dates = self.stocks[0].get_dates()
+        
         for stock in args:
             self.tot_cost_basis += stock.final_cost_basis
         self.tot_cost_basis = round(self.tot_cost_basis, 2)
@@ -260,7 +259,7 @@ class  Portfolio():
 
     def get_values_and_cost_bases(self):
         #outer loop iterates over the length of the dates/prices/cost bases list of every stock in the portfolio
-        for i in range(len(self.stocks[0].get_dates())):
+        for i in range(len(self.dates)):
             #inner loop iterates over every stock in the portfolio
             cost_basis = 0
             value = 0
@@ -270,7 +269,45 @@ class  Portfolio():
             self.cost_bases.append(cost_basis)
             self.values_of_portfolio.append(value)
     
-    def graph(self):
+
+    def graph_stock_price_subplot(self):
+        
+        fig = make_subplots(rows=len(self.stocks), cols=1, 
+                            shared_xaxes=True,
+                            vertical_spacing=0.02)
+                        
+        for i in range(len(self.stocks)):
+
+            fig.add_trace(go.Scatter(x=self.dates, y=self.stocks[i].get_prices(self.dates), name=self.stocks[i].stock_name),
+            row=i+1, col=1)
+
+        
+        fig.update_layout(title_text="Daily Stock Prices", showlegend=True)
+
+        return fig
+    
+
+    def graph_stock_basis_vs_value_subplot(self):
+        
+        fig = make_subplots(rows=len(self.stocks), cols=1, 
+                            shared_xaxes=True,
+                            vertical_spacing=0.02)
+                        
+        for i in range(len(self.stocks)):
+            self.stocks[i].get_invested_amounts(self.dates)
+            
+            fig.add_trace(go.Scatter(x=self.dates, y=self.stocks[i].cost_bases, name=self.stocks[i].stock_name + " Cost Basis"),
+            row=i+1, col=1)
+
+            fig.add_trace(go.Scatter(x=self.dates, y=self.stocks[i].investment_values, name=self.stocks[i].stock_name + " Investment Value"),
+            row=i+1, col=1)
+        
+        fig.update_layout(title_text="Daily Stock Cost Basis and Investment Value")
+
+        return fig
+            
+
+    def graph_portfolio_basis_vs_value(self):
         
         self.get_values_and_cost_bases()
         
@@ -280,7 +317,7 @@ class  Portfolio():
         layout_title_text="Portfolio Total Investment Value vs. Cost Basis" 
         )
 
-        fig.add_trace(go.Scatter(x=self.stocks[0].get_dates(), y=self.cost_bases, name="Total Portfolio Cost Basis"))
+        fig.add_trace(go.Scatter(x=self.dates, y=self.cost_bases, name="Total Portfolio Cost Basis"))
     
         return fig
 
@@ -309,6 +346,25 @@ def check_valid_stock(stock):
     except Exception as e:
         print(e)
         return False
+
+def check_valid_dates(stock, date):
+    try:
+        yf.Ticker(stock).history(start=date)["Close"][0]
+    except Exception as e:
+        print(e)
+        return False
+
+def check_valid_investment_amount(amount):
+    if amount <= 0:
+        return False
+    else:
+        return True
+
+def check_valid_recurring_amount(amount):
+    if amount < 0:
+        return False
+    else:
+        return True
 
 if __name__ == "__main__":
     disney_stock = Stock("DIS", 5000, "2020-01-01", "2020-02-05", 200, "monthly")

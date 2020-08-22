@@ -12,12 +12,31 @@
   {% endwith %}
   <h1 class="text-center">Enter stock information</h1>
   
+  <div class="text-center">
+    <button class="btn btn-primary" id="newStockButton">Add new stock</button>
+  </div>
+  
   <div class="container">
     <div class="row">
         <div class="col-md-4">
-            {{ wtf.quick_form(form) }}
+            {{ wtf.quick_form(form, id='form-1') }}
         </div>
     </div>
   </div>
 
+
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    
+    <script type="text/javascript">
+      let formNum = 1;
+      $('#newStockButton').click(function () {
+        let newForm = $(`{wtf.quick_form | safe}`)
+      })
+    </script>
+    
 {% endblock %}
