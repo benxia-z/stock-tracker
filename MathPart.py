@@ -54,6 +54,7 @@ def stockPriceCalculator(name, initAmount, startDate, endDate):
 
     return (returnInfo)
 
+#Grabs the stock price data from a table in yfinance
 def stockPriceLocator(name1, date):
     stockPrice = 0.00
     stockName = yf.Ticker(name1)
