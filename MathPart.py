@@ -7,6 +7,7 @@ import io
 from datetime import datetime
 matplotlib.use('agg')
 
+#Finds nessecary information to create a graph of the specified stock with the given inputs
 def stockPriceCalculator(name, initAmount, startDate, endDate):
     numOfStocks = 0
     initInvestment = 0.00
