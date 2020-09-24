@@ -1,54 +1,42 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
-{% block body %}
-<body class="text-center"></body>
+
 {% block content %}
-  <h1>Stock Tracker</h1>
-  <div class="container d-flex w-100 h-100 p-3 mx-auto flex-column">
-    <img src='data:image/png;base64,{{ plot_url }}' alt="No Stock Currently Entered"/>
-    {% if error %}
-    <div class="alert alert-danger" role="alert">
-      Invalid stock. Please try again.
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  <h1 class="text-center">Enter stock information</h1>
+  
+  <div class="text-center">
+    <button class="btn btn-primary" id="newStockButton">Add new stock</button>
+  </div>
+  
+  <div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            {{ wtf.quick_form(form, id='form-1') }}
+        </div>
     </div>
-    {% endif %}
-    {% if error1 %}
-    <div class="alert alert-danger" role="alert">
-      You were not able to buy any stocks with your initial investment.
-    </div>
-    {% endif %}
-    {% if not submitted %}
-    <form class="text-left" action="/index" method="POST">
-      <div class="form-group mb-2">
-        <label for="stockName">Enter a stock</label>
-        <input type="text" class="form-control" name="stock"><br>
-      </div>
-      <div class="form-group mb-2">
-        <label for="initInvest">Enter your initial investment</label>
-        <input type="text" class="form-control" name="init"><br>
-      </div>
-      <div class="form-group mb-2">
-        <label for="startDate">Enter start date (YYYY-MM-DD)</label>
-        <input type="text" class="form-control" name="start"><br>
-      </div>
-      <div class="form-group mb-2">
-        <label for="stockName">Enter end date (YYYY-MM-DD)</label>
-        <input type="text" class="form-control" name="end"><br>
-      </div>
-      <input type="submit" class="btn btn-primary" value="Submit"><br>
-    </form>
-    {% else %}
-    <h3>{{ answers['startInfo'] }}.</h3>
-    <h3>{{ answers['buyInfo'] }}.</h3>
-    <h3>{{ answers['endStockInfo'] }}.</h3>
-    <h3>{{ answers['endInvestmentInfo'] }}.</h3>
-    <h3>{{ answers['investmentGainInfo'] }}.</h3>
-    <h3>{{ answers['percentageGaininfo'] }}</h3>
-    <form action="/index" method="POST">
-      <input method="POST" type="submit" action="/index" class="btn btn-primary" value="Try Again?" name="submitted"><br>
-    </form>
-
-    {% endif %}
   </div>
 
+
+
 {% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    
+    <script type="text/javascript">
+      let formNum = 1;
+      $('#newStockButton').click(function () {
+        let newForm = $(`{wtf.quick_form | safe}`)
+      })
+    </script>
+    
 {% endblock %}

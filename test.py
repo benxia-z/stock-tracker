@@ -1,6 +1,6 @@
-print("hello")
+abcs = ['a', 'b', 'c']
 
-for i in range(0, 10, 2):
-    print (i)
+for c in abcs:
+    print (c)
 #This is Arjun
 #This is Ted

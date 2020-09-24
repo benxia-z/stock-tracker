@@ -1,134 +1,390 @@
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import yfinance as yf
-import matplotlib.pyplot as plt
-import matplotlib
-import numpy as np
-import io
-
-from datetime import datetime
-matplotlib.use('agg')
-
-#Finds nessecary information to create a graph of the specified stock with the given inputs
-def stockPriceCalculator(name, initAmount, startDate, endDate):
-    numOfStocks = 0
-    initInvestment = 0.00
-    initStockPrice = 0.00
-    endStockPrice = 0.00
-    endValueOfInvestment = 0.00
-    investmentGain = 0.00   
-    percentageGain = 0.00
+from datetime import datetime, date, timedelta
+import copy
 
 
-    initStockPrice = stockPriceLocator(name, startDate)
-    endStockPrice = stockPriceLocator(name, endDate)
 
-    numOfStocks = int(initAmount/initStockPrice)
-    startInfo = "The value of the stock on " + startDate + " was $" + str(initStockPrice)
+#class represents stock object with an initial investment amount and start and end dates of investment
+class Stock:
+    
+    def __init__(self, stock_name, init_amount, start_date, end_date, recurring_investment, frequency_of_investments):
+        self.stock_name = stock_name
+        #how much the user wants to initially invest
+        self.init_amount = init_amount
+        #cost basis is the amount the user has actually paid for stocks
+        self.init_cost_basis = 0
+        self.final_cost_basis = 0
+        #num of stocks user has on the start and end date
+        self.init_num_stocks = 0
+        self.final_num_stocks = 0
+        #iso format is "YYYY-MM-DD"
+        self.start_date = date.fromisoformat(start_date)
+        self.end_date = date.fromisoformat(end_date)
+        #Ticker object of the stock the user wants to buy
+        self.ticker_info = yf.Ticker(stock_name)
+        #amount user wants to invest on a periodic basis
+        self.recurring_investment = recurring_investment
+        #how often the user wants to invest periodically
+        self.frequency_of_investments = frequency_of_investments
+        #how many of those periods occur between the start and end date
+        self.num_of_recurring_investments = 0
+        #list to store all prices of the stock between the start and end date
+        self.prices = []
+        #list to store how many stocks user has purchased for each day between the start and end date
+        self.num_stocks_purchased = []
+        #list to store the total value of your investment for each day between the start and end date
+        self.investment_values = []
+        #list to store how much user has invested in stock for all days in the date list
+        self.cost_bases = []
+        #list to store the dates recurring investments are made
+        self.recurring_dates = []
+        #list to store the prices of the stocks on the recurring dates
+        self.recurring_prices = []
+        #list to store the price user has paid for each recurring investment
+        self.additions_to_cost_basis = []
+        
+        #gets price of stock on the start and end dates
+        self.init_stock_price = self.stock_price_locator(start_date)
+        self.final_stock_price = self.stock_price_locator(end_date)
 
-    if (numOfStocks <= 0):
-        print("You were not able to buy any stocks with your initial investment. Please enter a new amount: ")
-        return False
+        #integer number of stocks you can buy on start date
+        self.init_num_stocks = init_amount // self.init_stock_price
+        #if there are recurring investments, this variable is updated in the buy_more_stocks method
+        self.final_num_stocks = copy.deepcopy(self.init_num_stocks)
+        #amount of money user was actually able to invest on the start date
+        self.init_cost_basis = round(self.init_num_stocks * self.init_stock_price, 2)
+        #if there are recurring investments, this variable is updated in the buy_more_stocks method
+        self.final_cost_basis = copy.deepcopy(self.init_cost_basis)
+        self.buy_more_stocks()
+        #value of investments on the end date
+        self.final_investment_value = round(self.final_num_stocks * self.final_stock_price, 2)
+        
+        #can buy stocks or not
+        self.can_buy_stock = True
+        if self.init_num_stocks <= 0:
+            self.can_buy_stock = False
 
-    initInvestment = round((numOfStocks * initStockPrice), 2)
-    buyInfo = "You were able to buy " + str(numOfStocks) + " stocks at $" + str(initInvestment)
-
-    endValueOfInvestment = round((numOfStocks * endStockPrice), 2)
-    endStockInfo = "The value of the stock on " + endDate + " was $" + str(endStockPrice)
-    endInvestmentInfo = "The value of your investment on " + endDate + " was worth $" + str(endValueOfInvestment)
-
-    investmentGain = round((endValueOfInvestment - initInvestment), 2)
-    percentageGain = round(((endValueOfInvestment - initInvestment)/initInvestment) * 100, 2)
-
-    if(investmentGain < 0):
-        investmentGainInfo = "Your investment lost $" + str(investmentGain)
-        percentageGaininfo = "That's a " + str(percentageGain) + "% loss!"
-    else:
-        investmentGainInfo = "Your investment gained $" + str(investmentGain)
-        percentageGaininfo = "That's a " + str(percentageGain) + "% gain!"
-
-    returnInfo = {'startInfo': startInfo,
-                  'buyInfo': buyInfo,
-                  'endStockInfo': endStockInfo,
-                  'endInvestmentInfo': endInvestmentInfo,
-                  'investmentGainInfo': investmentGainInfo,
-                  'percentageGaininfo': percentageGaininfo}
-
-    return (returnInfo)
-
-#Grabs the stock price data from a table in yfinance
-def stockPriceLocator(name1, date):
-    stockPrice = 0.00
-    stockName = yf.Ticker(name1)
-    stockDataTable = stockName.history(start = date)
-    stockPrice = float(stockDataTable["Close"][0])
-    return stockPrice
-
-def stockPlotter(name2, startDate2, endDate2):
-    stockName = yf.Ticker(name2)
-    dateList = []
-    dateNumbersList = []
-    priceList = []
-    xTicks = []
-    yTicks = []
-    dateListSize = 0
-    stockDataTable = stockName.history(start = startDate2, end = endDate2)
-
-    for row in stockDataTable.itertuples():
-        dateString = row.Index.strftime("%Y-%m-%d")
-        dateList.append(dateString)
-        priceList.append(row.Close)
-
-    dateListSize = len(dateList)
-    #dateNumbersList = range(0, dateListSize)
-
-    fig, ax = plt.subplots()
-    plt.plot(dateList, priceList)
-    plt.title(name2 + " Performance", fontsize = 20)
-
-    if(dateListSize < 15):
-        ax.set_xticks(dateList[::1])
-        ax.set_xticklabels(dateList[::1], rotation=90)
-    elif(dateListSize < 45):
-        ax.set_xticks(dateList[::3])
-        ax.set_xticklabels(dateList[::3], rotation=90)
-    elif(dateListSize < 90):
-        ax.set_xticks(dateList[::6])
-        ax.set_xticklabels(dateList[::6], rotation=90)
-    elif (dateListSize < 180):
-        ax.set_xticks(dateList[::12])
-        ax.set_xticklabels(dateList[::12], rotation=90)
-    elif (dateListSize < 1825):
-        ax.set_xticks(dateList[::60])
-        ax.set_xticklabels(dateList[::60], rotation=90)
-    elif (dateListSize < 3650):
-        ax.set_xticks(dateList[::180])
-        ax.set_xticklabels(dateList[::180], rotation=90)
-    else:
-        ax.set_xticks(dateList[::365])
-        ax.set_xticklabels(dateList[::365], rotation=90)
-
-    print (dateList)
-    print (priceList)
-
-    plt.xlabel('Date', fontsize = 12)
-    #plt.xticks(rotation = 90)
-    plt.ylabel('Price ($)', fontsize = 12)
-    plt.gcf().subplots_adjust(bottom=0.25)
-    #plt.show()
-    bytes_image = io.BytesIO()
-    plt.savefig(bytes_image, format='png')
-    bytes_image.seek(0)
-    return bytes_image
+        self.investment_gain = round(self.final_investment_value - self.final_cost_basis, 2)
+        self.percentage_gain = round((self.investment_gain / self.final_cost_basis) * 100, 2)
 
 
-def isStockReal(stock):
-    stockName = yf.Ticker(stock)
-    stockDataTable = stockName.history(start = "2020-02-07")
-    if not(stockDataTable.empty):
+    #returns price of stock on given date
+    def stock_price_locator(self, date):
+        stockPrice = 0.00
+        stockDataTable = self.ticker_info.history(start=date)
+        stockPrice = float(stockDataTable["Close"][0])
+        return stockPrice
+    
+    #fills recurring_dates and recurring_prices list
+    def recurring_dates_and_prices_finder(self):
+        buy_date = copy.deepcopy(self.start_date)
+      
+        if(self.frequency_of_investments == "monthly"):
+            #number of months between start and end dates
+            self.num_of_recurring_investments = (self.end_date - self.start_date).days // 30
+            
+            for i in range(self.num_of_recurring_investments):
+                buy_date = buy_date + timedelta(days=30)
+                new_stock_price = self.stock_price_locator(buy_date)
+                self.recurring_dates.append(str(buy_date))
+                self.recurring_prices.append(new_stock_price)
+                
+                
+        elif(self.frequency_of_investments == "quarterly"):
+            #number of quarters between start and end dates
+            self.num_of_recurring_investments = (self.end_date - self.start_date).days // 91
+
+            for i in range(self.num_of_recurring_investments):
+                buy_date = buy_date + timedelta(days=91)
+                new_stock_price = self.stock_price_locator(buy_date)
+                self.recurring_dates.append(str(buy_date))
+                self.recurring_prices.append(new_stock_price)
+
+        elif(self.frequency_of_investments == "biyearly"):
+            #number half year periods between start and end date
+            self.num_of_recurring_investments = (self.end_date - self.start_date).days // 182
+            
+            for i in range(self.num_of_recurring_investments):
+                buy_date = buy_date + timedelta(days=182)
+                new_stock_price = self.stock_price_locator(buy_date)
+                self.recurring_dates.append(str(buy_date))
+                self.recurring_prices.append(new_stock_price)
+
+        elif(self.frequency_of_investments == "yearly"):
+            #number of years between start and end date
+            self.num_of_recurring_investments = (self.end_date - self.start_date).days // 362
+            
+            for i in range(self.num_of_recurring_investments):
+                buy_date = buy_date + timedelta(days=365)
+                new_stock_price = self.stock_price_locator(buy_date)
+                self.recurring_dates.append(str(buy_date))
+                self.recurring_prices.append(new_stock_price)
+
+    #adds to num_of_stocks and cost_basis attributes
+    def buy_more_stocks(self):
+
+        self.recurring_dates_and_prices_finder()
+
+        for i in range(self.num_of_recurring_investments):
+            #num of stocks user can buy with recurring investment amount
+            recurring_investment_stocks = self.recurring_investment // self.recurring_prices[i]
+            self.num_stocks_purchased.append(recurring_investment_stocks)
+            self.final_num_stocks += recurring_investment_stocks
+            #amount user has paid for recurring investment
+            recurring_investment_price = round(recurring_investment_stocks * self.recurring_prices[i], 2)
+            self.additions_to_cost_basis.append(recurring_investment_price)
+            self.final_cost_basis += recurring_investment_price
+        self.final_cost_basis = round(self.final_cost_basis, 2)
+    
+    #fills dates list
+    def get_dates(self):
+        dates = []
+        time_diff = (self.end_date - self.start_date).days
+        first_date = copy.deepcopy(self.start_date)
+        for i in range(time_diff):    
+            first_date_string = str(first_date)
+            dates.append(first_date_string)
+            first_date += timedelta(days=1)
+        return dates
+
+    #fills prices list
+    def get_prices(self, dates):
+        prices = []
+        for i in range(len(dates)):
+            date = dates[i]    
+            price = self.stock_price_locator(date)
+            prices.append(price)
+        return prices
+
+    #fills cost_bases list, which will be a "stair-step" looking trace
+    #also fills investment_values list, which represents the total value of the investment on every day between the start and end date
+    def get_invested_amounts(self, dates):
+        prices_list = self.get_prices(dates)
+        idx = 0
+        running_cost_basis = copy.deepcopy(self.init_cost_basis)
+        running_stocks = copy.deepcopy(self.init_num_stocks)
+        for i in range(len(dates)):
+            #checks if date is a recurring investment date
+            if dates[i] in self.recurring_dates:
+                running_cost_basis += self.additions_to_cost_basis[idx]
+                running_stocks += self.num_stocks_purchased[idx]
+                idx += 1
+            #if date was not a recurring investment date, cost basis will not have changed
+            self.cost_bases.append(round(running_cost_basis, 2))
+            self.investment_values.append(round(running_stocks * prices_list[i], 2))
+    '''
+    def graph_bases_vs_value(self, dates=None):
+
+        if not dates:
+            dates = self.get_dates()
+
+        self.get_invested_amounts(dates)
+
+        data=[go.Scatter(x=dates, y=self.investment_values, line_color="crimson", name="Total Investment Value")]
+
+        fig.add_trace(go.Scatter(x=dates, y=self.cost_bases, name="Cost Basis"))
+
+        return fig
+
+    def graph_stock_prices(self, dates=None):
+        
+        if not dates:
+            dates = self.get_dates()
+
+        self.get_prices(dates)
+
+        fig = go.Figure(
+
+        data=[go.Scatter(x=dates, y=self.prices, line_color="crimson", name='Stock Price')],
+        layout_title_text=self.stock_name + " Daily Stock Price"
+        )
+
+        return fig
+'''
+
+    def info_print_out(self):
+        
+        if(self.investment_gain >= 0):
+            self.investment_gain_info = "Your investment gained $" + str(self.investment_gain)
+        else:
+            self.investment_gain_info = "Your investment lost $" + str(self.investment_gain)
+
+        if(self.investment_gain >= 0):
+            self.percentage_gain_info = "That's a  %" + str(self.percentage_gain) + " gain !"
+        else:
+            self.percentage_gain_info = "That's a  %" + str(self.percentage_gain) + " loss !"
+        
+        return {'Start Info': "The value of " + self.stock_name + " on " + str(self.start_date) + " was $" + str(self.init_stock_price),
+         'Buy Info': "You were able to buy " + str(self.init_num_stocks) + " shares at $" + str(self.final_cost_basis),
+         'Final Info': "The value of " + self.stock_name + " on " + str(self.end_date) + " was $" + str(self.final_stock_price),
+         'End Investment Info': "The value of your investment on " + str(self.end_date) + " was worth $" + str(self.final_investment_value),
+         'Investment Gain info': self.investment_gain_info,
+         'Percentage Gain Info': self.percentage_gain_info}
+
+#class aggregates stock objects
+class  Portfolio():
+    def __init__(self, *args):
+        self.stocks = []
+        #final cost basis of entire portfolio
+        self.tot_cost_basis = 0
+        self.start_date = args[0].start_date
+        self.end_date = args[0].end_date
+        self.tot_recurring_investment = 0
+        #value of entire portfolio on the end date
+        self.tot_end_value = 0
+        self.tot_gain = 0
+        #stores the values of the portfolio on every day between the start and end date
+        self.values_of_portfolio = []
+        #stores the cost bases on every day between the start and end date
+        self.cost_bases = []
+
+        for stock in args:
+            self.stocks.append(stock)
+        
+        self.dates = self.stocks[0].get_dates()
+        
+        for stock in args:
+            self.tot_cost_basis += stock.final_cost_basis
+        self.tot_cost_basis = round(self.tot_cost_basis, 2)
+        
+        for stock in args:
+            self.tot_recurring_investment += stock.recurring_investment
+        
+        for stock in args:
+            self.tot_end_value += stock.final_investment_value
+
+        for stock in args:
+            self.tot_gain += stock.investment_gain
+        
+        self.tot_percentage_gain = round((self.tot_gain / self.tot_cost_basis) * 100, 2)
+
+    def get_values_and_cost_bases(self):
+        #outer loop iterates over the length of the dates/prices/cost bases list of every stock in the portfolio
+        for i in range(len(self.dates)):
+            #inner loop iterates over every stock in the portfolio
+            cost_basis = 0
+            value = 0
+            for stock in self.stocks:
+                cost_basis += stock.cost_bases[i]
+                value += stock.investment_values[i]
+            self.cost_bases.append(cost_basis)
+            self.values_of_portfolio.append(value)
+    
+
+    def graph_stock_price_subplot(self):
+        
+        fig = make_subplots(rows=len(self.stocks), cols=1, 
+                            shared_xaxes=True,
+                            vertical_spacing=0.02)
+                        
+        for i in range(len(self.stocks)):
+
+            fig.add_trace(go.Scatter(x=self.dates, y=self.stocks[i].get_prices(self.dates), name=self.stocks[i].stock_name),
+            row=i+1, col=1)
+
+        
+        fig.update_layout(title_text="Daily Stock Prices", showlegend=True)
+
+        return fig
+    
+
+    def graph_stock_basis_vs_value_subplot(self):
+        
+        fig = make_subplots(rows=len(self.stocks), cols=1, 
+                            shared_xaxes=True,
+                            vertical_spacing=0.02)
+                        
+        for i in range(len(self.stocks)):
+            self.stocks[i].get_invested_amounts(self.dates)
+            
+            fig.add_trace(go.Scatter(x=self.dates, y=self.stocks[i].cost_bases, name=self.stocks[i].stock_name + " Cost Basis"),
+            row=i+1, col=1)
+
+            fig.add_trace(go.Scatter(x=self.dates, y=self.stocks[i].investment_values, name=self.stocks[i].stock_name + " Investment Value"),
+            row=i+1, col=1)
+        
+        fig.update_layout(title_text="Daily Stock Cost Basis and Investment Value")
+
+        return fig
+            
+
+    def graph_portfolio_basis_vs_value(self):
+        
+        self.get_values_and_cost_bases()
+        
+        fig = go.Figure(
+
+        data=[go.Scatter(x=self.stocks[0].get_dates(), y=self.values_of_portfolio, line_color="mediumturquoise", name="Total Portfolio Value")],
+        layout_title_text="Portfolio Total Investment Value vs. Cost Basis" 
+        )
+
+        fig.add_trace(go.Scatter(x=self.dates, y=self.cost_bases, name="Total Portfolio Cost Basis"))
+    
+        return fig
+
+    def info_print_out(self):
+        
+        if(self.tot_gain >= 0):
+            self.tot_gain_info = "Your portfolio gained $" + str(self.tot_gain)
+        else:
+            self.tot_gain_info = "Your portfolio lost $" + str(self.tot_gain)
+
+        if(self.tot_percentage_gain >= 0):
+            self.percentage_gain_info = "That's a  %" + str(self.tot_percentage_gain) + " gain !"
+        else:
+            self.percentage_gain_info = "That's a  %" + str(self.tot_percentage_gain) + " loss !"
+        
+        return {'Start Info': "The cost basis of your portfolio on " + str(self.end_date) + " was $" + str(self.tot_cost_basis),
+            'Final Info': "The value of your portfolio on " + str(self.end_date) + " was $" + str(self.tot_end_value),
+            'Investment Gain info': self.tot_gain_info,
+            'Percentage Gain Info': self.percentage_gain_info}
+
+
+def check_valid_stock(stock):
+    try:
+        yf.Ticker(stock).info
         return True
-    else:
+    except Exception as e:
+        print(e)
         return False
 
+def check_valid_dates(stock, date):
+    try:
+        yf.Ticker(stock).history(start=date)["Close"][0]
+    except Exception as e:
+        print(e)
+        return False
 
+def check_valid_investment_amount(amount):
+    if amount <= 0:
+        return False
+    else:
+        return True
 
-#print(stockPriceCalculator(stock, investAmount, investmentDate, compareDate))
-#stockPlotter("AMZN", "2000-02-03", "2020-02-07")
+def check_valid_recurring_amount(amount):
+    if amount < 0:
+        return False
+    else:
+        return True
+
+if __name__ == "__main__":
+    disney_stock = Stock("DIS", 5000, "2020-01-01", "2020-02-05", 200, "monthly")
+    apple_stock = Stock("AAPL", 5000, "2020-01-01", "2020-02-05", 500, "monthly")
+    portfolio = Portfolio(disney_stock, apple_stock)
+
+    dates = disney_stock.get_dates()
+    
+    disney_stock.get_prices(dates)
+    disney_stock.get_invested_amounts(dates)
+
+    apple_stock.get_prices(dates)
+    apple_stock.get_invested_amounts(dates)
+
+    apple_stock.graph_bases_vs_value(dates)
+    apple_stock.graph_stock_prices(dates)
+
+    #portfolio.graph()
+
+    
