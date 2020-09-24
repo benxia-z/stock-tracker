@@ -4,6 +4,8 @@ import yfinance as yf
 from datetime import datetime, date, timedelta
 import copy
 
+
+
 #class represents stock object with an initial investment amount and start and end dates of investment
 class Stock:
     
@@ -66,6 +68,7 @@ class Stock:
 
         self.investment_gain = round(self.final_investment_value - self.final_cost_basis, 2)
         self.percentage_gain = round((self.investment_gain / self.final_cost_basis) * 100, 2)
+
 
     #returns price of stock on given date
     def stock_price_locator(self, date):
